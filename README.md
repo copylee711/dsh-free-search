@@ -1,5 +1,7 @@
 # dsh-free-search
 
+[![npm](https://img.shields.io/npm/v/@copylee/dsh-free-search)](https://www.npmjs.com/package/@copylee/dsh-free-search)
+
 **DeepSeek Harness 免费搜索插件 —— 无需 API key，零成本，多引擎可切换。** 一个给 DeepSeek Harness (dsh) 添加多引擎搜索 provider 的插件，注册进 `ctx.web` seam。内置 `web_search` 工具自动选用，支持网页设置页切换引擎、配置 API key、一键测试所有引擎、弹出式命令切换引擎。
 
 [中文](#中文) · [English](#english)
@@ -9,8 +11,8 @@
 ## 中文
 
 <div align="center">
-  <a href="https://raw.githubusercontent.com/DDDMUC/dsh-free-search/master/assets/settings-free1.png">
-    <img src="https://raw.githubusercontent.com/DDDMUC/dsh-free-search/master/assets/settings-free1.png" alt="免费引擎设置 (Bing)" width="820" />
+  <a href="https://raw.githubusercontent.com/1617110693/dsh-free-search/master/assets/settings-free1.png">
+    <img src="https://raw.githubusercontent.com/1617110693/dsh-free-search/master/assets/settings-free1.png" alt="免费引擎设置 (Bing)" width="820" />
   </a>
   <br>
   <sub>▲ 免费引擎（以Bing为例）</sub>
@@ -30,7 +32,7 @@ dsh 默认的搜索 provider 依赖 DeepSeek 官方 API key（`DEEPSEEK_API_KEY`
 
 - **零成本** —— 多个免费引擎，无需 key、无需注册
 - **多引擎可选**：DuckDuckGo（html/lite）、Bing、SearXNG（元搜索，支持自定义实例）、AnySearch、Exa、Tavily、Keenable、Firecrawl、Parallel、Perplexity、SerpBase、DeepSeek 官方
-- **网页设置页** —— 引擎切换 + API key 配置（UI 中 key 脱敏显示"已配置"）+ 中英文切换；入口：**设置 → 免费搜索**，或左侧「插件」页 → `dsh-free-search` 详情页（DSH 0.1.7-rc.1+）
+- **网页设置页** —— 引擎切换 + API key 配置（UI 中 key 脱敏显示"已配置"）+ 中英文切换；入口：**设置 → 免费搜索**，或左侧「插件」页 → `@copylee/dsh-free-search` 详情页（DSH 0.1.7-rc.1+）
 - **弹出式切换命令** —— 聊天框输入 `/free-search-engine`，弹出引擎选择窗口，点选即切换（等效设置页 + 保存）
 - **引擎测试** —— `free_search_test` 工具让 agent 一键测试所有引擎；设置页也有"测试引擎"按钮（直测当前引擎，不走回退链，付费引擎无 key 会明确报错）
 - **统一引擎回退** —— 任何引擎失败（付费/免费，缺 key/401/限流/网络）自动轮流尝试下一个引擎：首选引擎 → 其他引擎（exa/tavily/keenable/firecrawl/parallel 无 key 也会尝试，因为它们自带 keyless 免费额度）→ 剩余免费引擎，搜索永不直接失败；结果顶部注明实际生效的引擎（如 `Note: perplexity unavailable or failed, using exa.`）
@@ -44,7 +46,7 @@ dsh 默认的搜索 provider 依赖 DeepSeek 官方 API key（`DEEPSEEK_API_KEY`
 - **平台搜索（platform_search）** —— 搜 GitHub / V2EX / B站 / Reddit / Hacker News / Stack Overflow / 维基百科 / npm（公开 API，零依赖）
 - **干净集成** —— 实现官方 `WebSearchProvider` seam 接口，与官方插件共存
 
-如果这个插件帮到了你，欢迎给仓库点个 ⭐（[GitHub](https://github.com/DDDMUC/dsh-free-search)）——星标是开发者继续维护的最大动力，感谢支持！
+如果这个插件帮到了你，欢迎给仓库点个 ⭐（[GitHub](https://github.com/1617110693/dsh-free-search)）——星标是开发者继续维护的最大动力，感谢支持！
 
 ### 引擎列表
 
@@ -86,9 +88,17 @@ dsh 默认的搜索 provider 依赖 DeepSeek 官方 API key（`DEEPSEEK_API_KEY`
 ### 安装
 
 ```sh
-git clone https://github.com/DDDMUC/dsh-free-search.git
+dsh plugin --profile web add @copylee/dsh-free-search
+```
+
+或从源码安装：
+
+```sh
+git clone https://github.com/1617110693/dsh-free-search.git
 dsh plugin --profile web add /path/to/dsh-free-search
 ```
+
+> 本包 fork 自 [DDDMUC/dsh-free-search](https://github.com/DDDMUC/dsh-free-search)（npm `dsh-free-search`）。两者声明了同一个条目 id `web-search-free`，**不要同时安装**；从原版迁移时先卸载 `dsh-free-search` 再安装本包。
 
 然后重启：
 
@@ -117,7 +127,7 @@ dsh web
 安装后打开配置页（DSH 0.1.7-rc.1+）：
 
 - **设置**（左下角齿轮）→ 左侧导航 **免费搜索**
-- 或左侧 **插件** 页 → **已安装** 分组 → `dsh-free-search`：详情页直接显示配置卡片（组件行 `web-search-free` 的"配置"入口同样可用）
+- 或左侧 **插件** 页 → **已安装** 分组 → `@copylee/dsh-free-search`：详情页直接显示配置卡片（组件行 `web-search-free` 的"配置"入口同样可用）
 
 三处是同一张卡片、同一份配置，任选其一即可。
 
@@ -134,15 +144,15 @@ dsh web
 <table align="center" style="border: none; border-collapse: collapse;">
   <tr style="border: none;">
     <td align="center" width="50%" style="border: none; padding: 6px;">
-      <a href="https://raw.githubusercontent.com/DDDMUC/dsh-free-search/master/assets/settings-free.png">
-        <img src="https://raw.githubusercontent.com/DDDMUC/dsh-free-search/master/assets/settings-free.png" alt="免费引擎设置" width="100%" />
+      <a href="https://raw.githubusercontent.com/1617110693/dsh-free-search/master/assets/settings-free.png">
+        <img src="https://raw.githubusercontent.com/1617110693/dsh-free-search/master/assets/settings-free.png" alt="免费引擎设置" width="100%" />
       </a>
       <br>
       <sub>▲ <b>免费引擎</b>（显示绿色 FREE 徽章与官网链接）</sub>
     </td>
     <td align="center" width="50%" style="border: none; padding: 6px;">
-      <a href="https://raw.githubusercontent.com/DDDMUC/dsh-free-search/master/assets/settings-apikey.png">
-        <img src="https://raw.githubusercontent.com/DDDMUC/dsh-free-search/master/assets/settings-apikey.png" alt="付费引擎设置" width="100%" />
+      <a href="https://raw.githubusercontent.com/1617110693/dsh-free-search/master/assets/settings-apikey.png">
+        <img src="https://raw.githubusercontent.com/1617110693/dsh-free-search/master/assets/settings-apikey.png" alt="付费引擎设置" width="100%" />
       </a>
       <br>
       <sub>▲ <b>付费/API Key 引擎</b>（显示橙色 API KEY 徽章与获取链接）</sub>
@@ -158,7 +168,7 @@ dsh web
 
 #### 配置文件
 
-DSH 0.1.7-rc.1 起，配置跟随 profile 的插件条目保存：设置页与 `/free-search-engine` 都会写入当前 profile 的 `cordis.patch.yml` 中 `web-search-free`（`dsh-free-search`）条目的 `config`。旧版 `~/.dsh/settings.yaml` 的 `free-search:` 段只会在启动时自动导入一次，随后原文件被重命名为 `settings.yaml.imported`。
+DSH 0.1.7-rc.1 起，配置跟随 profile 的插件条目保存：设置页与 `/free-search-engine` 都会写入当前 profile 的 `cordis.patch.yml` 中 `web-search-free`（`@copylee/dsh-free-search`）条目的 `config`。旧版 `~/.dsh/settings.yaml` 的 `free-search:` 段只会在启动时自动导入一次，随后原文件被重命名为 `settings.yaml.imported`。
 
 ```yaml
 # profiles/<profile>/cordis.patch.yml 中该条目的 config：
@@ -281,8 +291,8 @@ Windows 用户：桌面快捷方式已内置此配置（`set NODE_USE_ENV_PROXY=
 ## English
 
 <div align="center">
-  <a href="https://raw.githubusercontent.com/DDDMUC/dsh-free-search/master/assets/settings-free1.png">
-    <img src="https://raw.githubusercontent.com/DDDMUC/dsh-free-search/master/assets/settings-free1.png" alt="Free Engine Settings (Bing)" width="820" />
+  <a href="https://raw.githubusercontent.com/1617110693/dsh-free-search/master/assets/settings-free1.png">
+    <img src="https://raw.githubusercontent.com/1617110693/dsh-free-search/master/assets/settings-free1.png" alt="Free Engine Settings (Bing)" width="820" />
   </a>
   <br>
   <sub>▲ Free engine (using Bing as an example)</sub>
@@ -302,7 +312,7 @@ This plugin provides multiple free search engines with automatic fallback, compl
 
 - **Zero Cost** — Multiple free engines with no API key or registration required
 - **Multi-Engine Support** — DuckDuckGo (HTML / Lite), Bing, AnySearch AI, SearXNG (meta-search with custom instances), Exa, Tavily, Keenable, Firecrawl, Parallel, Perplexity, SerpBase, and DeepSeek Official
-- **Web Settings UI** — Engine switching, API key configuration (keys masked as "configured" in the UI), and a Chinese/English toggle; open it from **Settings → Free Search**, or from the `dsh-free-search` detail page on the sidebar Plugins page (DSH 0.1.7-rc.1+)
+- **Web Settings UI** — Engine switching, API key configuration (keys masked as "configured" in the UI), and a Chinese/English toggle; open it from **Settings → Free Search**, or from the `@copylee/dsh-free-search` detail page on the sidebar Plugins page (DSH 0.1.7-rc.1+)
 - **Popup Switch Command** — Type `/free-search-engine` in the chat: a picker opens with all engines; click one to switch (equivalent to the settings page + save)
 - **Engine Testing** — `free_search_test` for the agent to check all engines in one call; the settings UI also has a "Test engine" button that tests the selected engine directly (no fallback chain; paid engines without a key report an explicit error)
 - **Unified Engine Fallback** — Any engine failure (paid or free, missing key, 401, rate limit, network error) automatically tries the next engine: the configured engine first, then other engines (exa/tavily/keenable/firecrawl/parallel are tried even without a key because they have built-in keyless quota), then the remaining free engines (Bing/AnySearch etc.) — with a note attached to the results naming the engine that actually served them (e.g. `Note: perplexity unavailable or failed, using exa.`). Search never fails outright.
@@ -316,7 +326,7 @@ This plugin provides multiple free search engines with automatic fallback, compl
 - **Platform Search (`platform_search`)** — Search GitHub / V2EX / Bilibili / Reddit / Hacker News / Stack Overflow / Wikipedia / npm (public APIs, zero extra dependencies)
 - **Clean Integration** — Implements the official `WebSearchProvider` seam interface, coexisting seamlessly with official plugins
 
-If this plugin has been helpful, a ⭐ on [GitHub](https://github.com/DDDMUC/dsh-free-search) would mean a lot — it's the biggest motivation for the developer to keep maintaining it. Thank you!
+If this plugin has been helpful, a ⭐ on [GitHub](https://github.com/1617110693/dsh-free-search) would mean a lot — it's the biggest motivation for the developer to keep maintaining it. Thank you!
 
 ### Supported Engines
 
@@ -358,9 +368,17 @@ If this plugin has been helpful, a ⭐ on [GitHub](https://github.com/DDDMUC/dsh
 ### Installation
 
 ```sh
-git clone https://github.com/DDDMUC/dsh-free-search.git
+dsh plugin --profile web add @copylee/dsh-free-search
+```
+
+Or install from source:
+
+```sh
+git clone https://github.com/1617110693/dsh-free-search.git
 dsh plugin --profile web add /path/to/dsh-free-search
 ```
+
+> This package is a fork of [DDDMUC/dsh-free-search](https://github.com/DDDMUC/dsh-free-search) (npm `dsh-free-search`). Both declare the same entry id `web-search-free`, so **do not install both**; when migrating, uninstall `dsh-free-search` first, then install this package.
 
 Then restart:
 
@@ -389,7 +407,7 @@ This plugin intentionally specifies `@deepseek-ai/dsh-settings` and `@deepseek-a
 After installation, open the config page (DSH 0.1.7-rc.1+):
 
 - **Settings** (gear, bottom-left) → **Free Search** in the left navigation
-- Or sidebar **Plugins** page → **Installed** group → `dsh-free-search`: the detail page shows the config card directly (the `web-search-free` component row's "configure" entry works too)
+- Or sidebar **Plugins** page → **Installed** group → `@copylee/dsh-free-search`: the detail page shows the config card directly (the `web-search-free` component row's "configure" entry works too)
 
 All three are the same card editing the same configuration.
 
@@ -406,15 +424,15 @@ The config page provides:
 <table align="center" style="border: none; border-collapse: collapse;">
   <tr style="border: none;">
     <td align="center" width="50%" style="border: none; padding: 6px;">
-      <a href="https://raw.githubusercontent.com/DDDMUC/dsh-free-search/master/assets/settings-free.png">
-        <img src="https://raw.githubusercontent.com/DDDMUC/dsh-free-search/master/assets/settings-free.png" alt="Free Engine Settings" width="100%" />
+      <a href="https://raw.githubusercontent.com/1617110693/dsh-free-search/master/assets/settings-free.png">
+        <img src="https://raw.githubusercontent.com/1617110693/dsh-free-search/master/assets/settings-free.png" alt="Free Engine Settings" width="100%" />
       </a>
       <br>
       <sub>▲ <b>Free Engine</b> (shows green FREE badge and official website link)</sub>
     </td>
     <td align="center" width="50%" style="border: none; padding: 6px;">
-      <a href="https://raw.githubusercontent.com/DDDMUC/dsh-free-search/master/assets/settings-apikey.png">
-        <img src="https://raw.githubusercontent.com/DDDMUC/dsh-free-search/master/assets/settings-apikey.png" alt="Paid/API Key Engine Settings" width="100%" />
+      <a href="https://raw.githubusercontent.com/1617110693/dsh-free-search/master/assets/settings-apikey.png">
+        <img src="https://raw.githubusercontent.com/1617110693/dsh-free-search/master/assets/settings-apikey.png" alt="Paid/API Key Engine Settings" width="100%" />
       </a>
       <br>
       <sub>▲ <b>Paid / API Key Engine</b> (shows orange API KEY badge and link to get an API key)</sub>
@@ -430,7 +448,7 @@ The command only changes the preferred engine; search still goes through `web_se
 
 #### Configuration File
 
-Since DSH 0.1.7-rc.1 the configuration is stored with the profile's plugin entry: the settings page and `/free-search-engine` both write the `config` of the `web-search-free` (`dsh-free-search`) entry in the active profile's `cordis.patch.yml`. The old `free-search:` section of `~/.dsh/settings.yaml` is imported once at startup; the file is then renamed to `settings.yaml.imported`.
+Since DSH 0.1.7-rc.1 the configuration is stored with the profile's plugin entry: the settings page and `/free-search-engine` both write the `config` of the `web-search-free` (`@copylee/dsh-free-search`) entry in the active profile's `cordis.patch.yml`. The old `free-search:` section of `~/.dsh/settings.yaml` is imported once at startup; the file is then renamed to `settings.yaml.imported`.
 
 ```yaml
 # config of that entry in profiles/<profile>/cordis.patch.yml:
