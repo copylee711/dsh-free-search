@@ -2,13 +2,8 @@
 # Registers the free-search plugin into ctx.web + a settings bridge
 # (/api/dsh-free-search-settings) that serves the "free-search" namespace.
 # The engine (ddg / ddg-lite / bing) is chosen from the web Settings page:
-#   DSH 0.1.6-alpha.2+: sidebar Plugins page -> Installed -> free-search -> row config
-#   DSH 0.1.5 and earlier: Settings > Plugins > Configurable > Free Search
-# or from settings.yaml:
-#   free-search:
-#     provider: bing
-#     region: cn-zh        # DuckDuckGo region
-#     bingMarket: zh-CN    # Bing market
+#   Settings -> Free Search, or sidebar Plugins page -> dsh-free-search (DSH 0.1.7-rc.1+)
+# or by editing the `web-search-free` entry's config below in the profile's cordis.patch.yml.
 # Failed/empty engines automatically fall back to the next free engine.
 # web.searchProvider must point at this plugin's provider id (ddg).
 - insert:
