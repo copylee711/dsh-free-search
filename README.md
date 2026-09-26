@@ -127,6 +127,7 @@ dsh web
 安装后打开配置页（DSH 0.1.7-rc.1+）：
 
 - 左侧 **插件** 页 → **已安装** 分组 → `@copylee/dsh-free-search`：详情页直接显示配置卡片
+- 官方 **网页搜索** 页底部也有提示，点「打开免费搜索设置」直接跳过去
 
 配置页提供：
 
@@ -404,6 +405,7 @@ This plugin intentionally specifies `@deepseek-ai/dsh-settings` and `@deepseek-a
 After installation, open the config page (DSH 0.1.7-rc.1+):
 
 - Sidebar **Plugins** page → **Installed** group → `@copylee/dsh-free-search`: the detail page shows the config card directly
+- The official **Web search** page also shows a notice at the bottom; "Open Free Search settings" jumps straight there
 
 The config page provides:
 
