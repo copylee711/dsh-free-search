@@ -106,16 +106,6 @@ dsh plugin --profile web add /path/to/dsh-free-search
 dsh web
 ```
 
-#### 姊妹插件：dsh-preset-workbench（预设工作台）
-
-同作者的**姊妹插件**：在设置页里可视化创建/编辑 Agent 预设——分段提示词、15 项能力开关、内置「鲸鱼娘 / 梁神模式」模板，不用手写 YAML。两者搭配：**free-search 解决"AI 联网搜索"、preset-workbench 解决"AI 人设能力编排"**，都是纯免费、开箱即用。
-
-- 仓库：<https://github.com/DDDMUC/dsh-preset-workbench>
-- 安装：`dsh plugin --profile web add github:DDDMUC/dsh-preset-workbench`
-- 用法：设置 → 预设工作台
-
-如果你觉得 preset-workbench 也有用，同样欢迎给它的仓库点个 ⭐。🙏
-
 #### 依赖说明
 
 插件对 `@deepseek-ai/dsh-settings` 和 `@deepseek-ai/dsh-tools` 使用 `peerDependencies`，这是刻意的：DSH 运行时必须使用安装树中的唯一实例。请通过 `dsh plugin --profile <profile> add ...` 安装插件，不要把 DSH 核心包复制进 profile 的本地 `node_modules`；重复副本会导致工具调度器失效。
@@ -382,16 +372,6 @@ Then restart:
 ```sh
 dsh web
 ```
-
-#### Sister Plugin: dsh-preset-workbench
-
-A **sister plugin** by the same author: a **visual workbench for creating/editing agent presets** right inside Settings — sectioned prompts, 15 capability toggles, and built-in "Whale Girl / Liangshen Mode" templates, no YAML needed. Pair them up: **free-search gives your AI web search, preset-workbench shapes its persona & capabilities** — both free and zero-config.
-
-- Repo: <https://github.com/DDDMUC/dsh-preset-workbench>
-- Install: `dsh plugin --profile web add github:DDDMUC/dsh-preset-workbench`
-- Usage: Settings → Preset Workbench
-
-If preset-workbench is useful to you too, a ⭐ on its repo is always welcome. 🙏
 
 #### Dependency Note
 
