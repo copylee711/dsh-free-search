@@ -29,7 +29,7 @@ This plugin provides multiple free search engines with automatic fallback, compl
 
 - **Zero Cost** — Multiple free engines with no API key or registration required
 - **Multi-Engine Support** — DuckDuckGo (HTML / Lite), Bing, AnySearch AI, SearXNG (meta-search with custom instances), Exa, Tavily, Keenable, Firecrawl, Parallel, Perplexity, SerpBase, and DeepSeek Official
-- **Web Settings UI** — Engine switching, API key configuration (keys masked as "configured" in the UI), and a Chinese/English toggle; open it from the `@copylee/dsh-free-search` detail page on the sidebar Plugins page (DSH 0.1.7-rc.1+)
+- **Web Settings UI** — Engine switching, API key configuration (keys masked as "configured" in the UI), and a Chinese/English toggle; open it from Plugins → Official → **Web search** (DSH 0.1.7-rc.1+)
 - **Popup Switch Command** — Type `/free-search-engine` in the chat: a picker opens with all engines; click one to switch (equivalent to the settings page + save)
 - **Engine Testing** — `free_search_test` for the agent to check all engines in one call; the settings UI also has a "Test engine" button that tests the selected engine directly (no fallback chain; paid engines without a key report an explicit error)
 - **Unified Engine Fallback** — Any engine failure (paid or free, missing key, 401, rate limit, network error) automatically tries the next engine: the configured engine first, then other engines (exa/tavily/keenable/firecrawl/parallel are tried even without a key because they have built-in keyless quota), then the remaining free engines (Bing/AnySearch etc.) — with a note attached to the results naming the engine that actually served them (e.g. `Note: perplexity unavailable or failed, using exa.`). Search never fails outright.
@@ -114,8 +114,8 @@ This plugin intentionally specifies `@deepseek-ai/dsh-settings` and `@deepseek-a
 
 After installation, open the config page (DSH 0.1.7-rc.1+):
 
-- Sidebar **Plugins** page → **Installed** group → `@copylee/dsh-free-search`: the detail page shows the config card directly
-- The official **Web search** page also shows a notice at the bottom; "Open Free Search settings" jumps straight there
+- Sidebar **Plugins** page → **Official** group → **Web search**: the official DeepSeek search provider's own settings stay on top, and this plugin's config card is right below them
+- If the official DeepSeek search provider is switched off (which removes the Web search page), the card shows on **Installed** → `@copylee/dsh-free-search` instead
 
 The config page provides:
 
@@ -271,7 +271,7 @@ Notes:
 ## How It Works
 
 - `lib/index.js`: Host side. Implements `WebSearchProvider` (`id` / `available()` / `search()`), unified engine routing + auto-fallback (paid engines first, free as fallback); parses `timeRange` (fixed tiers / relative values / absolute dates) and forwards it to each engine; declares its editable config as volatile fields on the `web-search-free` composition entry and ships its own settings page; provides the `/api/dsh-free-search-settings` read/write bridge + `raw-search` debug endpoint; registers the `free_search_test`, `platform_search`, and `advanced_search` tools; dynamically injects the engine list into system prompts (auto-refreshes on settings change).
-- `lib/client.js`: Browser side. React configuration card (engine select, key inputs, connectivity test, and Chinese/English toggle), mounted on the plugin's detail page on the sidebar Plugins page (`plugins.bundle.config`); registers the `/free-search-engine` popup switch command (`commandUi` popupSelect, the same mechanism as `/model`).
+- `lib/client.js`: Browser side. React configuration card (engine select, key inputs, connectivity test, and Chinese/English toggle), mounted below the official Web search page (`plugins.detail.section`), falling back to the plugin's detail page (`plugins.bundle.config`) when that page is absent; registers the `/free-search-engine` popup switch command (`commandUi` popupSelect, the same mechanism as `/model`).
 - `cordis.patch.yml`: Plugin loader configuration.
 
 ## License

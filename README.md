@@ -29,7 +29,7 @@ dsh 默认的搜索 provider 依赖 DeepSeek 官方 API key（`DEEPSEEK_API_KEY`
 
 - **零成本** —— 多个免费引擎，无需 key、无需注册
 - **多引擎可选**：DuckDuckGo（html/lite）、Bing、SearXNG（元搜索，支持自定义实例）、AnySearch、Exa、Tavily、Keenable、Firecrawl、Parallel、Perplexity、SerpBase、DeepSeek 官方
-- **网页设置页** —— 引擎切换 + API key 配置（UI 中 key 脱敏显示"已配置"）+ 中英文切换；入口：左侧「插件」页 → `@copylee/dsh-free-search` 详情页（DSH 0.1.7-rc.1+）
+- **网页设置页** —— 引擎切换 + API key 配置（UI 中 key 脱敏显示"已配置"）+ 中英文切换；入口：左侧「插件」页 → 官方 → **网页搜索**（DSH 0.1.7-rc.1+）
 - **弹出式切换命令** —— 聊天框输入 `/free-search-engine`，弹出引擎选择窗口，点选即切换（等效设置页 + 保存）
 - **引擎测试** —— `free_search_test` 工具让 agent 一键测试所有引擎；设置页也有"测试引擎"按钮（直测当前引擎，不走回退链，付费引擎无 key 会明确报错）
 - **统一引擎回退** —— 任何引擎失败（付费/免费，缺 key/401/限流/网络）自动轮流尝试下一个引擎：首选引擎 → 其他引擎（exa/tavily/keenable/firecrawl/parallel 无 key 也会尝试，因为它们自带 keyless 免费额度）→ 剩余免费引擎，搜索永不直接失败；结果顶部注明实际生效的引擎（如 `Note: perplexity unavailable or failed, using exa.`）
@@ -114,8 +114,8 @@ dsh web
 
 安装后打开配置页（DSH 0.1.7-rc.1+）：
 
-- 左侧 **插件** 页 → **已安装** 分组 → `@copylee/dsh-free-search`：详情页直接显示配置卡片
-- 官方 **网页搜索** 页底部也有提示，点「打开免费搜索设置」直接跳过去
+- 左侧 **插件** 页 → **官方** 分组 → **网页搜索**：上面是 DeepSeek 官方搜索提供方自己的设置（原样保留），下面就是本插件的配置卡片
+- 如果关掉了官方的 DeepSeek 搜索提供方（「网页搜索」页随之消失），配置卡片会改为显示在 **已安装** → `@copylee/dsh-free-search` 详情页
 
 配置页提供：
 
@@ -271,7 +271,7 @@ DuckDuckGo 等引擎在国内通常要走代理，而 Node.js 的 `fetch` 默认
 ## 工作原理
 
 - `lib/index.js`：host 端。实现 `WebSearchProvider`（`id` / `available()` / `search()`），统一引擎路由 + 自动回退（付费引擎优先，免费兜底）；解析 `timeRange`（固定档/相对值/绝对日期）并透传给各引擎；在 `web-search-free` 条目上声明可编辑配置（`.volatile()`）并自带设置页；提供 `/api/dsh-free-search-settings` 读写桥 + `raw-search` 调试接口；注册 `free_search_test`、`platform_search`、`advanced_search` 工具；动态注入引擎清单到系统提示词（设置变更时自动刷新）。
-- `lib/client.js`：浏览器端。React 配置卡片（引擎选择 + key 输入 + 连通测试 + 中英切换），挂载到左侧「插件」页的插件详情页（`plugins.bundle.config`）；注册 `/free-search-engine` 弹出式切换命令（`commandUi` popupSelect，与 `/model` 同机制）。
+- `lib/client.js`：浏览器端。React 配置卡片（引擎选择 + key 输入 + 连通测试 + 中英切换），挂载到官方「网页搜索」页下方（`plugins.detail.section`），官方页不在时退回插件详情页（`plugins.bundle.config`）；注册 `/free-search-engine` 弹出式切换命令（`commandUi` popupSelect，与 `/model` 同机制）。
 - `cordis.patch.yml`：插件 loader 配置。
 
 ## 许可证
