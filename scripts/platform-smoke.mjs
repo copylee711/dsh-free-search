@@ -4,7 +4,7 @@
 import { PLATFORMS, searchPlatform } from "../lib/index.js";
 
 const query = process.argv[2] || "deepseek";
-const only = process.argv[3] ? process.argv[3].split(",") : PLATFORMS;
+const only = process.argv[3] ? process.argv[3].split(",") : Object.keys(PLATFORMS);
 let failed = 0;
 for (const platform of only) {
   const started = Date.now();
