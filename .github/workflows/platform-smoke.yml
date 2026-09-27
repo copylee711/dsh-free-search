@@ -29,4 +29,5 @@ jobs:
           node scripts/platform-smoke.mjs "${{ inputs.query }}" "${{ inputs.platforms }}"
           node scripts/platform-smoke.mjs "B站" "bilibili,v2ex"
           node scripts/platform-smoke.mjs "热门" "bilibili"
+          for q in "原神" "编程教程" "deepseek harness" "美食" "排行榜"; do node scripts/platform-smoke.mjs "$q" "bilibili"; done
           node scripts/platform-smoke.mjs "Node.js" "v2ex,reddit"
