@@ -26,6 +26,9 @@ importers:
       react:
         specifier: ^18.2.0
         version: 18.3.1
+      undici:
+        specifier: ^7.30.0
+        version: 7.30.0
     devDependencies:
       '@deepseek-ai/dsh-settings':
         specifier: ^0.1.7-rc.1
@@ -376,6 +379,10 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  undici@7.30.0:
+    resolution: {integrity: sha512-dkrQXeHSaoamnItlYbmzG0wFYrM0ZwDxCIg0A7aKjTyyhh9svRzCNFEzV+Vm05/yehjCzjDZ31KXfGEjYSztDQ==}
+    engines: {node: '>=20.18.1'}
+
   yaml@2.9.1:
     resolution: {integrity: sha512-3NxN8+78OdzbT7C/WjGsyfPAtJaN3FNDsWxv7Y7mcDsT/oOmgW8BpyQQFFBnvZE3j9Y2Sdz1ULFLezL7Eb2yFw==}
     engines: {node: '>= 14.6'}
@@ -717,6 +724,8 @@ snapshots:
   resolve.exports@2.0.3: {}
 
   semver@7.8.5: {}
+
+  undici@7.30.0: {}
 
   yaml@2.9.1: {}
 
