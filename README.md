@@ -246,22 +246,9 @@ Search engine test:
 
 全部走公开 API，零外部依赖、无需任何 key，开箱即用。
 
-## 本地引擎切换工具（tools/）
-
-`tools/` 目录附带了一个本地切换小工具（零依赖）：
-
-- **`启动搜索引擎切换器.cmd`**（Windows）——双击启动本地 Node 服务（`http://127.0.0.1:4789`）并自动打开浏览器选择页面
-- **`switch-engine.html`** —— 选择页面：显示当前引擎，点选新引擎，一键写入配置
-- **`server.mjs`** —— 本地服务，负责读写 `~/.dsh/profiles/web/cordis.patch.yml`
-- **`switch-engine.ps1`** —— 无界面命令行版：`powershell -File tools/switch-engine.ps1 -Engine bing`
-
-切换后重启 `dsh web` 生效。
-
-> 配置卡片挂在左侧「插件」页的 `plugins.bundle.config` 插槽（dsh 自带），配置读写走插件自建 bridge，**不依赖 dsh-web-ui**，插件可独立使用。
-
 ## 代理（国内用户）
 
-DuckDuckGo 等引擎在国内通常要走代理，而 Node.js 的 `fetch` 默认不走系统代理。现在不用再给 dsh 进程设环境变量，直接在插件配置卡片的 **网络代理** 里设置：
+DuckDuckGo 等引擎在国内通常要走代理，而 Node.js 的 `fetch` 默认不走系统代理。现在不用再给 dsh 进程设环境变量，直接在插件配置卡片的 **搜索引擎代理** 里设置：
 
 - **系统代理（自动检测）**：依次读取 `HTTPS_PROXY` / `HTTP_PROXY` / `ALL_PROXY` 环境变量、Windows「Internet 选项」里的系统代理、macOS 网络设置里的 HTTP(S) 代理。检测结果会显示在下拉框下方。
 - **自定义代理地址**：手动填写，如 `http://127.0.0.1:7897`（可省略 `http://`）。
@@ -273,6 +260,7 @@ DuckDuckGo 等引擎在国内通常要走代理，而 Node.js 的 `fetch` 默认
 - 选了代理却拿不到地址（比如系统代理没开）时，该引擎本次失败，自动回退到下一个引擎。
 - 「测试引擎」按钮同样按这里的代理设置发请求，可以直接用它验证代理是否可用。
 - 如果你之前按旧文档给 dsh 设置了 `NODE_USE_ENV_PROXY=1` + `HTTPS_PROXY`，那会让 dsh 的所有请求都走代理；改用本设置后可以去掉这些环境变量。
+- 和 [dsh-proxy](https://github.com/copylee711/dsh-proxy)（DSH 全局 / 模型提供商代理插件）可以同时装，互不冲突：这里勾选的引擎走这里设的代理；没勾选的引擎和普通请求一样，dsh-proxy 开了全局代理就走全局代理，没开就直连。如果 dsh-proxy 已经开了全局代理，这里保持「不使用代理」即可。
 
 ## safeSearch 安全搜索过滤
 

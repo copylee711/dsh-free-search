@@ -246,22 +246,9 @@ Ask the agent to search specific platforms (e.g., *"Search GitHub for deepseek h
 
 All platform searches rely on public endpoints with zero external dependencies and no API keys — they work out of the box.
 
-## Local Engine Switcher (`tools/`)
-
-The `tools/` directory includes a lightweight, zero-dependency switcher:
-
-- **`启动搜索引擎切换器.cmd`** (Windows) — Double-click to launch a local Node server (`http://127.0.0.1:4789`) and automatically open the engine selector page in your browser.
-- **`switch-engine.html`** — The selector UI: displays current engine status and allows one-click switching.
-- **`server.mjs`** — The local backend service responsible for reading/writing `~/.dsh/profiles/web/cordis.patch.yml`.
-- **`switch-engine.ps1`** — Headless PowerShell script: `powershell -File tools/switch-engine.ps1 -Engine bing`.
-
-Restart `dsh web` after switching to apply changes.
-
-> The settings card mounts into the `plugins.bundle.config` slot of the sidebar Plugins page (built into DSH), and configuration reads/writes go through the plugin's own bridge. **No `dsh-web-ui` dependency — the plugin can be used standalone.**
-
 ## Proxy (for Users in Mainland China)
 
-Engines such as DuckDuckGo usually need a proxy in mainland China, and Node.js `fetch` ignores the system proxy by default. There is no need to set environment variables for dsh anymore: set it under **Network proxy** in the plugin's config card:
+Engines such as DuckDuckGo usually need a proxy in mainland China, and Node.js `fetch` ignores the system proxy by default. There is no need to set environment variables for dsh anymore: set it under **Search engine proxy** in the plugin's config card:
 
 - **System proxy (auto-detect)**: reads the `HTTPS_PROXY` / `HTTP_PROXY` / `ALL_PROXY` environment variables, then the Windows "Internet Options" system proxy, then the macOS HTTP(S) proxy. The detected address is shown under the dropdown.
 - **Custom proxy address**: enter it yourself, e.g. `http://127.0.0.1:7897` (`http://` may be omitted).
@@ -273,6 +260,7 @@ Notes:
 - If a proxy is selected but no address is available (e.g. the system proxy is off), that engine fails for this request and the fallback chain moves on to the next engine.
 - The "Test engine" button sends its request with the same proxy settings, so you can use it to check the proxy.
 - If you previously set `NODE_USE_ENV_PROXY=1` + `HTTPS_PROXY` for dsh as the old docs suggested, that routes all of dsh's traffic through the proxy; with this setting you can drop those variables.
+- Works side by side with [dsh-proxy](https://github.com/copylee711/dsh-proxy) (the DSH global / model-provider proxy plugin): engines checked here use the proxy set here; unchecked engines behave like any other request, going through dsh-proxy's global proxy when it is on and directly otherwise. If dsh-proxy's global proxy is already on, you can leave this set to "No proxy".
 
 ## safeSearch filtering
 
