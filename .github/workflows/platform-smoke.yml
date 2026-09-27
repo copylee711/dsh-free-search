@@ -1,0 +1,30 @@
+# 手动触发：对 platform_search 的每个平台发真实请求，检查是否能拿到结果
+name: Platform search smoke test
+
+on:
+  workflow_dispatch:
+    inputs:
+      query:
+        description: "搜索关键词"
+        default: "deepseek"
+      platforms:
+        description: "只测这些平台（逗号分隔，留空测全部）"
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm install -g pnpm@10
+      - run: pnpm install --frozen-lockfile
+      - name: Query every platform
+        run: |
+          node scripts/platform-smoke.mjs "${{ inputs.query }}" "${{ inputs.platforms }}"
+          node scripts/platform-smoke.mjs "B站" "bilibili,v2ex"
