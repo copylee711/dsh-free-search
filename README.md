@@ -121,7 +121,7 @@ dsh web
 
 - **Search engine**：下拉框切换引擎，保存即生效
 - **API keys**：为 Exa / Tavily / Keenable / Firecrawl / Parallel / Perplexity / DeepSeek 填写 key（密码框，保存后只显示"已配置"；Exa / Tavily / Keenable / Firecrawl / Parallel 不填也可免 key 使用）
-  - **推荐**：付费引擎 key 建议写入 harness 凭据中心 `~/.dsh/.credentials.yaml`（如 `DEEPSEEK_API_KEY: sk-...`，与官方 LLM provider 一致，一处管理所有 key）。插件读取优先级：凭据中心 > 设置页 > 环境变量，设置页填的 key 仅作为遗留兼容。
+  - **推荐**：付费引擎 key 建议写入 harness 凭据中心 `~/.dsh/.credentials.yaml`（如 `DEEPSEEK_API_KEY: sk-...`，与官方 LLM provider 一致，一处管理所有 key）。插件读取优先级：启动 dsh 时的环境变量 > 凭据中心 > 设置页，设置页填的 key 仅作为遗留兼容。已由环境变量提供的 key 在配置卡片里显示为只读（例如「已从环境变量 EXA_API_KEY 读取」），要改就去改环境变量。
 - **Test engine**：直测当前引擎可用性（不走回退链，付费引擎无 key 会明确报错）
 - **Use Bing default**：把当前搜索引擎切回稳定的免费 Bing；`Discard` 只撤销尚未保存的编辑
 - **Platform search**：勾选启用 GitHub / V2EX / Bilibili 平台搜索（`platform_search` 工具按此过滤）

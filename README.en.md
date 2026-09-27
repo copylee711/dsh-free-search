@@ -121,7 +121,7 @@ The config page provides:
 
 - **Search engine**: Select an engine from the dropdown; changes take effect immediately upon saving.
 - **API keys**: Enter keys for Exa / Tavily / Keenable / Firecrawl / Parallel / Perplexity / DeepSeek (password fields; displayed as "configured" once saved; Exa / Tavily / Keenable / Firecrawl / Parallel work without a key too).
-  - **Recommended**: store paid-engine keys in the harness credential center `~/.dsh/.credentials.yaml` (e.g. `DEEPSEEK_API_KEY: sk-...`, same as the official LLM providers — one place for all keys). Resolution order: credentials center > settings page > environment variable; the settings-page fields remain for backward compatibility.
+  - **Recommended**: store paid-engine keys in the harness credential center `~/.dsh/.credentials.yaml` (e.g. `DEEPSEEK_API_KEY: sk-...`, same as the official LLM providers — one place for all keys). Resolution order: environment variables dsh was started with > credentials center > settings page; the settings-page fields remain for backward compatibility. A key supplied by an environment variable shows as read-only in the config card (e.g. "read from environment variable EXA_API_KEY"); change it in the environment instead.
 - **Test engine**: Tests the selected engine directly (no fallback chain; paid engines without a key report an explicit error).
 - **Use Bing default**: stage a switch back to the stable free Bing engine; `Discard` only cancels unsaved edits
 - **Platform search**: check platforms (GitHub / V2EX / Bilibili / Reddit / HN / Stack Overflow / Wikipedia / npm) to enable them for the `platform_search` tool (disabled platforms are skipped).
