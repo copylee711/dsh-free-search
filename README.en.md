@@ -236,9 +236,9 @@ Ask the agent to search specific platforms (e.g., *"Search GitHub for deepseek h
 | Platform | Purpose |
 |---|---|
 | `github` | GitHub repository search (public API, free, no key required) |
-| `v2ex` | V2EX hot / relevant topics |
-| `bilibili` | Bilibili video / content search (public API) |
-| `reddit` | Reddit posts / discussions (public JSON API; may be blocked by Reddit anti-bot in some network environments) |
+| `v2ex` | V2EX full-text topic search (via SOV2EX; falls back to matching hot topics) |
+| `bilibili` | Bilibili video search (sends a device cookie and WBI signature, avoiding the -352 anti-bot error); queries like 热门 / trending / popular return Bilibili's popular list |
+| `reddit` | Reddit posts / discussions (tries the public JSON endpoints, then RSS; Reddit often blocks data-center / proxy IPs, and reports it clearly when every endpoint is blocked) |
 | `hn` | Hacker News tech community discussions (official Algolia API) |
 | `stackoverflow` | Stack Overflow Q&A (official public Stack Exchange API) |
 | `wikipedia` | Wikipedia articles (zh.wikipedia.org for Chinese; switches to en.wikipedia.org when `lang: en`) |

@@ -124,7 +124,7 @@ dsh web
   - **推荐**：付费引擎 key 建议写入 harness 凭据中心 `~/.dsh/.credentials.yaml`（如 `DEEPSEEK_API_KEY: sk-...`，与官方 LLM provider 一致，一处管理所有 key）。插件读取优先级：启动 dsh 时的环境变量 > 凭据中心 > 设置页，设置页填的 key 仅作为遗留兼容。已由环境变量提供的 key 在配置卡片里显示为只读（例如「已从环境变量 EXA_API_KEY 读取」），要改就去改环境变量。
 - **Test engine**：直测当前引擎可用性（不走回退链，付费引擎无 key 会明确报错）
 - **Use Bing default**：把当前搜索引擎切回稳定的免费 Bing；`Discard` 只撤销尚未保存的编辑
-- **Platform search**：勾选启用 GitHub / V2EX / Bilibili 平台搜索（`platform_search` 工具按此过滤）
+- **Platform search**：勾选启用 GitHub / V2EX / Bilibili / Reddit / HN / Stack Overflow / 维基百科 / npm 平台搜索（`platform_search` 工具按此过滤）
 - **EN / 中文**：切换界面语言（默认中文）
 
 <table align="center" style="border: none; border-collapse: collapse;">
@@ -236,9 +236,9 @@ Search engine test:
 | 平台 | 用途 |
 |---|---|
 | `github` | GitHub 仓库搜索（API，免费无 key） |
-| `v2ex` | V2EX 热门/相关主题 |
-| `bilibili` | B站视频/内容搜索（公开接口） |
-| `reddit` | Reddit 帖子/讨论搜索（公开 JSON API；部分网络环境可能被 Reddit 反爬拦截） |
+| `v2ex` | V2EX 主题全文搜索（经 SOV2EX；不可用时退回热门主题匹配） |
+| `bilibili` | B站视频搜索（自动带设备 cookie 和 WBI 签名，避免 -352 风控）；关键词为「热门 / 热榜 / 排行榜」时返回 B站综合热门 |
+| `reddit` | Reddit 帖子/讨论搜索（依次尝试公开 JSON 和 RSS；Reddit 常拦截机房 / 代理 IP，全部被拦时会明确报错） |
 | `hn` | Hacker News 技术社区讨论（Algolia 官方 API） |
 | `stackoverflow` | Stack Overflow 技术问答（Stack Exchange 官方公开 API） |
 | `wikipedia` | 维基百科词条（中文环境用 zh.wikipedia.org，`lang: en` 时切换 en.wikipedia.org） |
