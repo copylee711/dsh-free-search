@@ -28,3 +28,5 @@ jobs:
         run: |
           node scripts/platform-smoke.mjs "${{ inputs.query }}" "${{ inputs.platforms }}"
           node scripts/platform-smoke.mjs "B站" "bilibili,v2ex"
+          node scripts/platform-smoke.mjs "热门" "bilibili"
+          node scripts/platform-smoke.mjs "Node.js" "v2ex,reddit"
