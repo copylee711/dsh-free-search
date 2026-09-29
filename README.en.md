@@ -8,11 +8,11 @@
 
 
 <div align="center">
-  <a href="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-free1.png">
-    <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-free1.png" alt="Free Engine Settings (Bing)" width="820" />
+  <a href="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-overview-en.png">
+    <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-overview-en.png" alt="Settings page: search engines and priority" width="820" />
   </a>
   <br>
-  <sub>▲ Free engine (using Bing as an example)</sub>
+  <sub>▲ Settings page (same styling as DSH's own settings, follows the light/dark theme)</sub>
 </div>
 
 ## Why You Need It
@@ -28,11 +28,14 @@ This plugin provides multiple free search engines with automatic fallback, compl
 ## Features
 
 - **Zero Cost** — Multiple free engines with no API key or registration required
-- **Multi-Engine Support** — DuckDuckGo (HTML / Lite), Bing, AnySearch AI, SearXNG (meta-search with custom instances), Exa, Tavily, Keenable, Firecrawl, Parallel, Perplexity, SerpBase, and DeepSeek Official
-- **Web Settings UI** — Engine switching, API key configuration (keys masked as "configured" in the UI), and a Chinese/English toggle; open it from Plugins → Official → **Web search** (DSH 0.1.7-rc.1+)
+- **Multi-Engine Support** — DuckDuckGo (HTML / Lite), Bing, AnySearch AI, SearXNG (meta-search with custom instances), Exa, Tavily, Keenable, Firecrawl, Parallel, Perplexity, SerpBase, DeepSeek Official, You.com, Baidu Qianfan, Kimi, Aliyun Bailian and Doubao search — plus the **OpenAI model's built-in web search**
+- **Adjustable search priority** — pick a mode: "Preferred + fallback" (one preferred engine, then the list) or "Priority list" (strictly top to bottom); reorder the list and switch engines on/off one by one; the preferred engine can also be "Auto" (smart routing by query language)
+- **Model built-in web search (OpenAI)** — optional: the model (default `gpt-6-luna`) searches the web through the Responses API `web_search` tool and returns an answer with cited sources; model and Base URL (any compatible gateway) are configurable; billed per search, off by default
+- **Cross-source search (multi_search)** — queries several engines concurrently, merges results by URL and marks which engines each result was seen in
+- **Web Settings UI** — styled like DSH's own settings pages (follows the light/dark theme): priority, model search, API keys (masked as "configured", with where each key comes from), proxy, Chinese/English toggle; open it from Plugins → Official → **Web search** (DSH 0.1.7-rc.1+)
 - **Popup Switch Command** — Type `/free-search-engine` in the chat: a picker opens with all engines; click one to switch (equivalent to the settings page + save)
 - **Engine Testing** — `free_search_test` for the agent to check all engines in one call; the settings UI also has a "Test engine" button that tests the selected engine directly (no fallback chain; paid engines without a key report an explicit error)
-- **Unified Engine Fallback** — Any engine failure (paid or free, missing key, 401, rate limit, network error) automatically tries the next engine: the configured engine first, then other engines (exa/tavily/keenable/firecrawl/parallel are tried even without a key because they have built-in keyless quota), then the remaining free engines (Bing/AnySearch etc.) — with a note attached to the results naming the engine that actually served them (e.g. `Note: perplexity unavailable or failed, using exa.`). Search never fails outright.
+- **Unified Engine Fallback** — Any engine failure (paid or free, missing key, 401, rate limit, network error, no results) automatically tries the next engine in the order set on the settings page (paid engines without a key are skipped; exa/tavily/keenable/firecrawl/parallel work keyless) — with a note attached to the results naming the engine that actually served them (e.g. `Note: perplexity unavailable or failed, using exa.`). Search never fails outright.
 - **Time Filtering** — The `advanced_search` tool supports `timeRange`: fixed tiers, custom relative values, or an absolute date (details below)
 - **System Prompt Injection** — The agent is aware of the currently active engine and which engines require API keys; it is also told that all search output is **untrusted external data** and must never be executed as instructions
 - **Prompt-Injection Guard (untrusted-data boundary)** — Web-derived text from the plugin's own tools (`advanced_search` / `platform_search` / `free_search_test`) is wrapped in an explicit `<untrusted-web-content>` boundary (look-alike tags inside the text are stripped to prevent early closure); the core `web_search` / `web_fetch` tools carry DSH core's own notice (`External web content follows...`); every snippet is cleaned and capped at 300 characters
@@ -63,9 +66,17 @@ If this plugin has been helpful, a ⭐ on [GitHub](https://github.com/copylee711
 | `perplexity` | Perplexity | Paid | Requires `PERPLEXITY_API_KEY` |
 | `serpbase` | SerpBase | Paid | Requires `SERPBASE_API_KEY` (serpbase.dev, 100 free queries on signup) |
 | `deepseek-official` | DeepSeek Official | Paid | Requires `DEEPSEEK_API_KEY` |
+| `you` | You.com | Paid | Requires `YOUCOM_API_KEY` |
+| `baidu` | Baidu Qianfan AI search | Paid | Requires `BAIDU_API_KEY`; supports time filtering |
+| `kimi` | Kimi (Moonshot) web search | Paid | Requires `MOONSHOT_API_KEY` |
+| `aliyun` | Aliyun Bailian EnhancedSearch | Paid | Requires `DASHSCOPE_API_KEY` |
+| `doubao` | Doubao search (Volcano Engine Web Search) | Paid | Requires `DOUBAO_SEARCH_API_KEY` (500 free searches/month); supports time filtering; long summaries |
+| `openai` | OpenAI model built-in web search | Paid | Requires `OPENAI_API_KEY`; **off by default**, turn it on under "Model built-in web search"; about $10 per 1K searches plus tokens; returns an answer with citations; no time filtering |
+
+The preferred engine can also be `auto` (smart routing): Chinese/Japanese/Korean queries try Bing / Baidu / Aliyun / AnySearch first, other languages Bing / Exa / Tavily, then the fallback order.
 
 - **Default engine is `bing`** (free and most stable), ready to use out of the box after installation.
-- **Auto-failover**: any engine failure (rate-limited free engine, or missing/invalid paid key, network error) automatically tries the next engine — the configured engine first, then other engines (exa/tavily/keenable/firecrawl/parallel are tried even without a key because they have built-in keyless quota), then the remaining free engines (Bing/AnySearch etc.) — with a note attached to the results naming the engine that actually served them (e.g. `Note: perplexity unavailable or failed, using exa.`). Search never fails outright because of engine issues.
+- **Auto-failover**: any engine failure (rate-limited free engine, or missing/invalid paid key, network error) automatically tries the next engine in the order set on the settings page (default: Exa → Tavily → Keenable → Firecrawl → Parallel → the other API KEY engines → Bing → AnySearch → DuckDuckGo → SearXNG) — with a note attached to the results naming the engine that actually served them (e.g. `Note: perplexity unavailable or failed, using exa.`). Search never fails outright because of engine issues.
 - **Official Links in Settings**: Free engines display "Visit Website →", while paid engines display "Get API Key →" (opens in a new tab):
   - Exa: <https://dashboard.exa.ai/api-keys>
   - Tavily: <https://app.tavily.com/home>
@@ -74,6 +85,12 @@ If this plugin has been helpful, a ⭐ on [GitHub](https://github.com/copylee711
   - Perplexity: <https://www.perplexity.ai/settings/api>
   - SerpBase: <https://serpbase.dev>
   - DeepSeek: <https://platform.deepseek.com/api_keys>
+  - You.com: <https://you.com/platform/api-keys>
+  - Baidu Qianfan: <https://console.bce.baidu.com/qianfan>
+  - Kimi: <https://platform.moonshot.cn>
+  - Aliyun Bailian: <https://bailian.console.aliyun.com>
+  - Doubao search: <https://console.volcengine.com/search-infinity/web-search>
+  - OpenAI: <https://platform.openai.com/api-keys>
 
 ### Why are some engines free?
 
@@ -96,7 +113,7 @@ git clone https://github.com/copylee711/dsh-free-search.git
 dsh plugin --profile web add /path/to/dsh-free-search
 ```
 
-> This package is a fork of [DDDMUC/dsh-free-search](https://github.com/DDDMUC/dsh-free-search) (npm `dsh-free-search`). Both declare the same entry id `web-search-free`, so **do not install both**; when migrating, uninstall `dsh-free-search` first, then install this package.
+> This package is a fork of [DDDMUC/dsh-free-search](https://github.com/DDDMUC/dsh-free-search) (npm `dsh-free-search`). Both declare the same entry id `web-search-free`, so **do not install both**; when migrating, uninstall `dsh-free-search` first, then install this package. Upstream v0.6.0's new engines (You.com / Baidu / Kimi / Aliyun / Doubao), smart routing, `multi_search`, default-search takeover and legacy config migration are merged into this package; upstream settings such as `provider: auto` keep working.
 
 Then restart:
 
@@ -119,46 +136,61 @@ After installation, open the config page (DSH 0.1.7-rc.1+):
 
 The config page provides:
 
-- **Search engine**: Select an engine from the dropdown; changes take effect immediately upon saving.
+- **Search engines**:
+  - **Priority mode**: "Preferred + fallback" — pick a preferred engine (or "Auto" smart routing) and fall back through the list below; "Priority list" — no preferred engine, the list is tried strictly top to bottom
+  - **Fallback order / Search order**: reorder with ↑ ↓, switch engines on/off on the right; "Reset to default" restores the defaults
+- **Model built-in web search**: turn OpenAI's built-in search on (off by default) and set the model (default `gpt-6-luna`), Base URL (any gateway compatible with the Responses API) and `OPENAI_API_KEY`; once on it appears in the order above and can go anywhere
+- **Search results**: safe search, Bing market, result cache TTL
 - **API keys**: Enter keys for Exa / Tavily / Keenable / Firecrawl / Parallel / Perplexity / DeepSeek (password fields; displayed as "configured" once saved; Exa / Tavily / Keenable / Firecrawl / Parallel work without a key too).
   - **Recommended**: store paid-engine keys in the harness credential center `~/.dsh/.credentials.yaml` (e.g. `DEEPSEEK_API_KEY: sk-...`, same as the official LLM providers — one place for all keys). Resolution order: environment variables dsh was started with > credentials center > settings page; the settings-page fields remain for backward compatibility. A key supplied by an environment variable shows as read-only in the config card (e.g. "read from environment variable EXA_API_KEY"); change it in the environment instead.
-- **Test engine**: Tests the selected engine directly (no fallback chain; paid engines without a key report an explicit error).
-- **Use Bing default**: stage a switch back to the stable free Bing engine; `Discard` only cancels unsaved edits
+- **Test engine**: Tests the engine tried first directly (no fallback chain; paid engines without a key report an explicit error); `Discard` only cancels unsaved edits
+- **Network proxy**: see "Proxy" below
 - **Platform search**: check platforms (GitHub / V2EX / Bilibili / Reddit / HN / Stack Overflow / Wikipedia / npm) to enable them for the `platform_search` tool (disabled platforms are skipped).
 - **EN / 中文**: toggle the interface language (default Chinese).
 
 <table align="center" style="border: none; border-collapse: collapse;">
   <tr style="border: none;">
     <td align="center" width="50%" style="border: none; padding: 6px;">
-      <a href="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-free.png">
-        <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-free.png" alt="Free Engine Settings" width="100%" />
+      <a href="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-model-search.png">
+        <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-model-search.png" alt="Priority list + model built-in web search" width="100%" />
       </a>
       <br>
-      <sub>▲ <b>Free Engine</b> (shows green FREE badge and official website link)</sub>
+      <sub>▲ <b>Priority list mode</b> with OpenAI built-in web search on</sub>
     </td>
     <td align="center" width="50%" style="border: none; padding: 6px;">
-      <a href="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-apikey.png">
-        <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-apikey.png" alt="Paid/API Key Engine Settings" width="100%" />
+      <a href="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-dark.png">
+        <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-dark.png" alt="API keys and proxy in the dark theme" width="100%" />
       </a>
       <br>
-      <sub>▲ <b>Paid / API Key Engine</b> (shows orange API KEY badge and link to get an API key)</sub>
+      <sub>▲ <b>Dark theme</b>: API keys (with their source) and network proxy</sub>
     </td>
   </tr>
 </table>
 
 ### Switching Engines from the Chat (/free-search-engine)
 
-You can also switch the engine right from the chat — no need to open the settings page. Type `/free-search-engine`: a **picker opens with all engines** (the same interaction as `/model` for selecting a model). Click one to switch; the current engine is marked. Equivalent to switching and saving in the settings page, and the language follows the settings page (Chinese/English).
+You can also switch the engine right from the chat — no need to open the settings page. Type `/free-search-engine`: a **picker opens with all engines** (the same interaction as `/model` for selecting a model). Click one to switch; the current engine is marked. In "Preferred + fallback" mode it becomes the preferred engine ("Auto" smart routing is offered too); in "Priority list" mode it moves to the top of the list. Either way the engine is switched on.
 
-The command only changes the preferred engine; search still goes through `web_search` + the unified fallback chain — even if the preferred engine fails, it automatically switches to others, never failing outright. The system prompt refreshes accordingly.
+The command only changes the priority settings; search still goes through `web_search` + the unified fallback chain — even if the preferred engine fails, it automatically switches to others, never failing outright. The system prompt refreshes accordingly.
 
 ### Configuration File
 
-Since DSH 0.1.7-rc.1 the configuration is stored with the profile's plugin entry: the settings page and `/free-search-engine` both write the `config` of the `web-search-free` (`@copylee/dsh-free-search`) entry in the active profile's `cordis.patch.yml`. The old `free-search:` section of `~/.dsh/settings.yaml` is imported once at startup; the file is then renamed to `settings.yaml.imported`.
+Since DSH 0.1.7-rc.1 the configuration is stored with the profile's plugin entry: the settings page and `/free-search-engine` both write the `config` of the `web-search-free` (`@copylee/dsh-free-search`) entry in the active profile's `cordis.patch.yml`.
+
+The old `free-search:` section of `~/.dsh/settings.yaml` is **not** imported by the DSH core (it only maps `ui-developer-tools` / `ui-onboarding` / `shell`); the file is renamed to `settings.yaml.imported` and the section's values stay there. At startup the plugin looks for that section in `settings.yaml.imported` (or a still-present `settings.yaml`) and seeds the recognized fields into this entry's `config` **once** (watch for `free-search: migrated N field(s)…` in the startup log).
 
 ```yaml
 # config of that entry in profiles/<profile>/cordis.patch.yml:
-provider: bing              # ddg / ddg-lite / bing / searxng / anysearch / exa / tavily / keenable / firecrawl / parallel / perplexity / serpbase / deepseek-official
+provider: bing              # preferred engine: any engine id, or auto (smart routing)
+priorityMode: preferred     # preferred (preferred + fallback) / list (priority list)
+engineOrder:                # fallback order / priority list (missing engines are appended)
+  - exa
+  - tavily
+  - bing
+disabledEngines:            # skipped engines (default [openai])
+  - openai
+openaiModel: gpt-6-luna     # model for OpenAI built-in web search
+openaiBaseUrl: https://api.openai.com/v1   # or a gateway compatible with the Responses API
 lang: zh                    # settings UI language (zh / en)
 bingMarket: zh-CN           # Bing market
 region: cn-zh               # DuckDuckGo region (optional)
@@ -172,6 +204,7 @@ parallelApiKey: ...         # Or configure via the web settings UI
 perplexityApiKey: ...
 serpbaseApiKey: ...         # Or configure via the web settings UI
 deepseekApiKey: ...
+# youcomApiKey / baiduApiKey / kimiApiKey / aliyunApiKey / doubaoApiKey / openaiApiKey work the same (prefer the credential center)
 proxyMode: system          # off (direct) / system (auto-detect OS proxy) / custom (use proxyUrl)
 proxyUrl: http://127.0.0.1:7897   # used when proxyMode is custom
 proxyEngines:               # engines that use the proxy
@@ -213,11 +246,13 @@ Ask the agent for *"news from the last week"*, *"releases this month"*, *"update
 | Parallel | `source_policy.after_date` with a key (precise); without a key the MCP path has no date parameter, so the window is written into the objective as a freshness hint (soft filter) | ✅ precise / ⚠️ soft | custom days become an ISO date (N days ago); absolute dates pass through |
 | SearXNG | `time_range` | ⚠️ approximate | same as above |
 | DuckDuckGo / Lite | `df` | ⚠️ approximate | same as above |
-| Bing / AnySearch | — | ❌ ignored | no corresponding parameter |
+| Baidu Qianfan | `search_filter.range.page_time` | ✅ precise | converted to a start/end date |
+| Doubao search | `TimeRange` | ⚠️ approximate / ✅ precise | relative values map to OneDay/OneWeek/OneMonth/OneYear; absolute dates use a `start..today` range |
+| Bing / AnySearch / OpenAI etc. | — | ❌ ignored | no corresponding parameter |
 
 **Nearest-tier mapping rule**: `≤2 days → day`, `≤14 days → week`, `≤90 days → month`, otherwise `year`. For example, `3d` becomes `day` on Tavily, and `2mo` becomes `month`.
 
-**Engine-chain priority**: when a `timeRange` is present, engines that support time filtering (tavily / exa / keenable / firecrawl / parallel / searxng / ddg / ddg-lite) are moved to the front of the fallback chain, so the filter actually takes effect — even if the preferred engine is bing (which does not support filtering), a filtering-capable engine is tried first.
+**Engine-chain priority**: when a `timeRange` is present, engines that support time filtering (tavily / exa / keenable / firecrawl / parallel / searxng / ddg / ddg-lite / baidu / doubao) are moved to the front of the fallback chain, so the filter actually takes effect — even if the preferred engine is bing (which does not support filtering), a filtering-capable engine is tried first.
 
 Example: *"Find DSH news from the last 3 days"* → agent calls `advanced_search` with `timeRange: "3d"`.
 
@@ -246,9 +281,17 @@ Ask the agent to search specific platforms (e.g., *"Search GitHub for deepseek h
 
 All platform searches rely on public endpoints with zero external dependencies and no API keys — they work out of the box.
 
+### Cross-source search (multi_search)
+
+When the agent needs cross-checking or several perspectives ("find a few more sources"), it can call `multi_search`: it queries several engines concurrently (by default the first 3 enabled engines of the smart route, or the `engines` you pass), merges results by normalized URL and marks each with `seen in: bing, baidu`; results found by more engines rank higher. It uses more engine quota, so it is for when source diversity matters.
+
+### Taking over the default search
+
+DSH's base bundle ships `web.searchProvider: deepseek-official` (which needs DeepSeek balance). At startup the plugin takes over when searchProvider is unset or still that shipped default; if another provider was chosen explicitly, it does not override it and only logs a warning with the YAML to switch.
+
 ## Proxy (for Users in Mainland China)
 
-Engines such as DuckDuckGo usually need a proxy in mainland China, and Node.js `fetch` ignores the system proxy by default. There is no need to set environment variables for dsh anymore: set it under **Search engine proxy** in the plugin's config card:
+Engines such as DuckDuckGo and OpenAI usually need a proxy in mainland China, and Node.js `fetch` ignores the system proxy by default. There is no need to set environment variables for dsh anymore: set it under **Network proxy** in the plugin's config card:
 
 - **System proxy (auto-detect)**: reads the `HTTPS_PROXY` / `HTTP_PROXY` / `ALL_PROXY` environment variables, then the Windows "Internet Options" system proxy, then the macOS HTTP(S) proxy. The detected address is shown under the dropdown.
 - **Custom proxy address**: enter it yourself, e.g. `http://127.0.0.1:7897` (`http://` may be omitted).
@@ -270,8 +313,8 @@ Notes:
 
 ## How It Works
 
-- `lib/index.js`: Host side. Implements `WebSearchProvider` (`id` / `available()` / `search()`), unified engine routing + auto-fallback (paid engines first, free as fallback); parses `timeRange` (fixed tiers / relative values / absolute dates) and forwards it to each engine; declares its editable config as volatile fields on the `web-search-free` composition entry and ships its own settings page; provides the `/api/dsh-free-search-settings` read/write bridge + `raw-search` debug endpoint; registers the `free_search_test`, `platform_search`, and `advanced_search` tools; dynamically injects the engine list into system prompts (auto-refreshes on settings change).
-- `lib/client.js`: Browser side. React configuration card (engine select, key inputs, connectivity test, and Chinese/English toggle), mounted below the official Web search page (`plugins.detail.section`), falling back to the plugin's detail page (`plugins.bundle.config`) when that page is absent; registers the `/free-search-engine` popup switch command (`commandUi` popupSelect, the same mechanism as `/model`).
+- `lib/index.js`: Host side. Implements `WebSearchProvider` (`id` / `available()` / `search()`), unified engine routing + auto-fallback (order and on/off state from the settings page, with smart routing); parses `timeRange` (fixed tiers / relative values / absolute dates) and forwards it to each engine; declares its editable config as volatile fields on the `web-search-free` composition entry and ships its own settings page; provides the `/api/dsh-free-search-settings` read/write bridge + `raw-search` debug endpoint; registers the `free_search_test`, `platform_search`, `advanced_search` and `multi_search` tools; dynamically injects the engine list into system prompts (auto-refreshes on settings change).
+- `lib/client.js`: Browser side. React configuration card (priority list, model search, key inputs, connectivity test and Chinese/English toggle, styled with DSH's design tokens), mounted below the official Web search page (`plugins.detail.section`), falling back to the plugin's detail page (`plugins.bundle.config`) when that page is absent; registers the `/free-search-engine` popup switch command (`commandUi` popupSelect, the same mechanism as `/model`).
 - `cordis.patch.yml`: Plugin loader configuration.
 
 ## License

@@ -1,11 +1,18 @@
 # dsh-free-search — free web search providers (no API key needed)
 # Registers the free-search plugin into ctx.web + a settings bridge
-# (/api/dsh-free-search-settings) that serves the "free-search" namespace.
-# The engine (ddg / ddg-lite / bing) is chosen from the web Settings page:
-#   sidebar Plugins page -> @copylee/dsh-free-search (DSH 0.1.7-rc.1+)
-# or by editing the `web-search-free` entry's config below in the profile's cordis.patch.yml.
-# Failed/empty engines automatically fall back to the next free engine.
-# web.searchProvider must point at this plugin's provider id (ddg).
+# (/api/dsh-free-search-settings) for the `web-search-free` entry's config.
+# Engines and their priority are set on the web settings page:
+#   sidebar Plugins page -> Official -> Web search (or the @copylee/dsh-free-search
+#   detail page when the official search provider is off), DSH 0.1.7-rc.1+
+# or with /free-search-engine in the chat, or by editing this entry's config, e.g.:
+#   provider: bing            # preferred engine id, or auto (smart routing)
+#   priorityMode: preferred   # preferred (preferred + fallback) | list (priority list)
+# Failed/empty engines fall back to the next engine in the configured order.
+# A legacy ~/.dsh/settings.yaml "free-search:" section is migrated into this
+# entry's config once at startup (see README).
+# web.searchProvider must point at this plugin's provider id (ddg); the runtime
+# also takes over when it is unset or still the shipped default
+# (deepseek-official), and only warns when another provider was chosen explicitly.
 - insert:
     - id: web-search-free
       name: "@copylee/dsh-free-search"

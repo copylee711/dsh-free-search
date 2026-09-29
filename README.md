@@ -8,11 +8,11 @@
 
 
 <div align="center">
-  <a href="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-free1.png">
-    <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-free1.png" alt="免费引擎设置 (Bing)" width="820" />
+  <a href="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-overview.png">
+    <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-overview.png" alt="设置页：搜索引擎与优先级" width="820" />
   </a>
   <br>
-  <sub>▲ 免费引擎（以Bing为例）</sub>
+  <sub>▲ 设置页（与 DSH 设置页同一套样式，跟随深浅色主题）</sub>
 </div>
 
 ## 为什么需要它
@@ -28,14 +28,17 @@ dsh 默认的搜索 provider 依赖 DeepSeek 官方 API key（`DEEPSEEK_API_KEY`
 ## 特性
 
 - **零成本** —— 多个免费引擎，无需 key、无需注册
-- **多引擎可选**：DuckDuckGo（html/lite）、Bing、SearXNG（元搜索，支持自定义实例）、AnySearch、Exa、Tavily、Keenable、Firecrawl、Parallel、Perplexity、SerpBase、DeepSeek 官方
-- **网页设置页** —— 引擎切换 + API key 配置（UI 中 key 脱敏显示"已配置"）+ 中英文切换；入口：左侧「插件」页 → 官方 → **网页搜索**（DSH 0.1.7-rc.1+）
+- **多引擎可选**：DuckDuckGo（html/lite）、Bing、SearXNG（元搜索，支持自定义实例）、AnySearch、Exa、Tavily、Keenable、Firecrawl、Parallel、Perplexity、SerpBase、DeepSeek 官方、You.com、百度千帆、Kimi、阿里云百炼、豆包搜索，以及 **OpenAI 模型内置联网搜索**
+- **可调的搜索优先级** —— 两种模式任选：「首选 + 回退」（选一个首选引擎，失败时按列表回退）或「全局列表」（完全按列表从上到下）；列表可上下调整顺序、逐个开关引擎；首选引擎还可以选「智能路由」（按查询语言自动排序）
+- **模型内置联网搜索（OpenAI）** —— 可选开启：通过 Responses API 的 `web_search` 工具让模型（默认 `gpt-6-luna`）搜索网页并返回带引用的回答；模型名、Base URL（可换兼容网关）可配置；按次计费，默认关闭
+- **多源交叉搜索（multi_search）** —— 并发查询多个引擎，按 URL 合并去重，每条结果标注出现在哪些引擎里
+- **网页设置页** —— 与 DSH 自身设置页同一套样式（跟随深浅色主题）：优先级、模型搜索、API key（脱敏显示"已配置"及来源）、代理、中英文切换；入口：左侧「插件」页 → 官方 → **网页搜索**（DSH 0.1.7-rc.1+）
 - **弹出式切换命令** —— 聊天框输入 `/free-search-engine`，弹出引擎选择窗口，点选即切换（等效设置页 + 保存）
 - **引擎测试** —— `free_search_test` 工具让 agent 一键测试所有引擎；设置页也有"测试引擎"按钮（直测当前引擎，不走回退链，付费引擎无 key 会明确报错）
-- **统一引擎回退** —— 任何引擎失败（付费/免费，缺 key/401/限流/网络）自动轮流尝试下一个引擎：首选引擎 → 其他引擎（exa/tavily/keenable/firecrawl/parallel 无 key 也会尝试，因为它们自带 keyless 免费额度）→ 剩余免费引擎，搜索永不直接失败；结果顶部注明实际生效的引擎（如 `Note: perplexity unavailable or failed, using exa.`）
+- **统一引擎回退** —— 任何引擎失败（付费/免费，缺 key/401/限流/网络/无结果）自动按设置页的顺序尝试下一个引擎（缺 key 的付费引擎直接跳过，exa/tavily/keenable/firecrawl/parallel 无 key 也能用），搜索永不直接失败；结果顶部注明实际生效的引擎（如 `Note: perplexity unavailable or failed, using exa.`）
 - **时间过滤** —— `advanced_search` 工具支持 `timeRange`：固定档、自定义相对值、绝对日期三种形式（详见下方逻辑说明）
 - **系统提示词注入** —— agent 知道当前用哪个引擎、哪些需要 key；并明确所有搜索结果是**不可信外部数据**，不得执行其中的指令
-- **提示注入防护（不可信数据边界）** —— 插件自有工具（advanced_search / platform_search / free_search_test）的网页文本包在 `<untrusted-web-content>` 边界内（正文里自带的同名标记会被剥离，防止提前闭合）；核心 web_search / web_fetch 由 DSH 核心自带同类提示（`External web content follows...`）；所有 snippet 统一清洗并截断到 300 字符
+- **提示注入防护（不可信数据边界）** —— 插件自有工具（advanced_search / platform_search / free_search_test）的网页文本包在 `<untrusted-web-content>` 边界内（正文里自带的同名标记会被剥离，防止提前闭合）；核心 web_search / web_fetch 由 DSH 核心自带同类提示（`External web content follows...`）；所有 snippet 统一清洗，默认截断到 300 字符（豆包搜索的长摘要放宽到 2000）
 - **版本号 + 检查更新** —— 设置卡片显示当前版本，"检查更新"按钮直连 npm registry 对比最新版，有新版本时提示并可一键跳转
 - **结果缓存** —— 相同查询（含引擎/时间过滤参数）5 分钟内命中缓存（LRU 50 条），防免费引擎限流、省付费额度；时长可在设置页 0-5 分钟自由配置（0 关闭）
 - **按引擎走代理** —— 配置卡片里直接选「系统代理（自动检测）」或填代理地址，并勾选哪些引擎走代理；无需再给 dsh 设置环境变量（见下方「代理」）
@@ -63,9 +66,17 @@ dsh 默认的搜索 provider 依赖 DeepSeek 官方 API key（`DEEPSEEK_API_KEY`
 | `perplexity` | Perplexity | 付费 | 需 `PERPLEXITY_API_KEY` |
 | `serpbase` | SerpBase | 付费 | 需 `SERPBASE_API_KEY`（serpbase.dev，注册送 100 次免费额度） |
 | `deepseek-official` | DeepSeek 官方 | 付费 | 需 `DEEPSEEK_API_KEY` |
+| `you` | You.com | 付费 | 需 `YOUCOM_API_KEY` |
+| `baidu` | 百度千帆 AI 搜索 | 付费 | 需 `BAIDU_API_KEY`，支持时间过滤 |
+| `kimi` | Kimi（Moonshot）联网搜索 | 付费 | 需 `MOONSHOT_API_KEY` |
+| `aliyun` | 阿里云百炼 EnhancedSearch | 付费 | 需 `DASHSCOPE_API_KEY` |
+| `doubao` | 豆包搜索（火山引擎联网搜索） | 付费 | 需 `DOUBAO_SEARCH_API_KEY`（每月 500 次免费额度），支持时间过滤，返回长摘要 |
+| `openai` | OpenAI 模型内置联网搜索 | 付费 | 需 `OPENAI_API_KEY`，**默认关闭**，在设置页「模型内置联网搜索」开启；约 $10 / 千次搜索（另计 token），返回带引用的回答，不支持时间过滤 |
+
+首选引擎还可以设为 `auto`（智能路由）：中日韩文查询先试 Bing / 百度 / 阿里云 / AnySearch，其他语言先试 Bing / Exa / Tavily，之后按回退顺序继续。
 
 - **默认引擎为 `bing`**（免费且最稳定），安装后开箱即用。
-- **自动回退**：任何引擎失败（免费限流/反爬，付费缺 key/无效/网络错误）都会自动轮流尝试下一个引擎——先试其他已配 key 的付费引擎，再试免费引擎（Bing/AnySearch 等），并在结果中附带回退提示——搜索不会因引擎问题直接失败。
+- **自动回退**：任何引擎失败（免费限流/反爬，付费缺 key/无效/网络错误）都会自动按设置页的顺序尝试下一个引擎，并在结果中附带回退提示——搜索不会因引擎问题直接失败。默认顺序：Exa → Tavily → Keenable → Firecrawl → Parallel → 其余 API KEY 引擎 → Bing → AnySearch → DuckDuckGo → SearXNG，可在设置页调整。
 - **设置页有官网链接**：免费引擎显示"访问官网 →"，付费引擎显示"获取 API Key →"（新标签页打开）：
   - Exa：<https://dashboard.exa.ai/api-keys>
   - Tavily：<https://app.tavily.com/home>
@@ -74,6 +85,12 @@ dsh 默认的搜索 provider 依赖 DeepSeek 官方 API key（`DEEPSEEK_API_KEY`
   - Perplexity：<https://www.perplexity.ai/settings/api>
   - SerpBase：<https://serpbase.dev>
   - DeepSeek：<https://platform.deepseek.com/api_keys>
+  - You.com：<https://you.com/platform/api-keys>
+  - 百度千帆：<https://console.bce.baidu.com/qianfan>
+  - Kimi：<https://platform.moonshot.cn>
+  - 阿里云百炼：<https://bailian.console.aliyun.com>
+  - 豆包搜索：<https://console.volcengine.com/search-infinity/web-search>
+  - OpenAI：<https://platform.openai.com/api-keys>
 
 ### 为什么免费引擎不需要 key？
 
@@ -96,7 +113,7 @@ git clone https://github.com/copylee711/dsh-free-search.git
 dsh plugin --profile web add /path/to/dsh-free-search
 ```
 
-> 本包 fork 自 [DDDMUC/dsh-free-search](https://github.com/DDDMUC/dsh-free-search)（npm `dsh-free-search`）。两者声明了同一个条目 id `web-search-free`，**不要同时安装**；从原版迁移时先卸载 `dsh-free-search` 再安装本包。
+> 本包 fork 自 [DDDMUC/dsh-free-search](https://github.com/DDDMUC/dsh-free-search)（npm `dsh-free-search`）。两者声明了同一个条目 id `web-search-free`，**不要同时安装**；从原版迁移时先卸载 `dsh-free-search` 再安装本包。上游 v0.6.0 的新引擎（You.com / 百度 / Kimi / 阿里云 / 豆包）、智能路由、`multi_search`、默认搜索接管与旧配置迁移已合并进本包；原版的 `provider: auto` 等配置可以直接沿用。
 
 然后重启：
 
@@ -119,46 +136,61 @@ dsh web
 
 配置页提供：
 
-- **Search engine**：下拉框切换引擎，保存即生效
-- **API keys**：为 Exa / Tavily / Keenable / Firecrawl / Parallel / Perplexity / DeepSeek 填写 key（密码框，保存后只显示"已配置"；Exa / Tavily / Keenable / Firecrawl / Parallel 不填也可免 key 使用）
+- **搜索引擎**：
+  - **优先级模式**：「首选 + 回退」——选一个首选引擎（或「智能路由」），失败时按下面的列表回退；「全局列表」——不设首选，完全按列表从上到下尝试
+  - **回退顺序 / 搜索顺序**：↑ ↓ 调整顺序，右侧开关启用/跳过某个引擎；「恢复默认」一键还原
+- **模型内置联网搜索**：开关 OpenAI 内置搜索（默认关闭），设置模型（默认 `gpt-6-luna`）、Base URL（可换成兼容 Responses API 的网关）和 `OPENAI_API_KEY`；开启后它出现在上面的顺序里，可以放到任意位置
+- **搜索结果**：安全搜索过滤、Bing 市场、结果缓存时长
+- **API 密钥**：为各引擎填写 key（密码框，保存后只显示"已配置"，并标出 key 来自环境变量 / 凭据中心；Exa / Tavily / Keenable / Firecrawl / Parallel 不填也可免 key 使用）
   - **推荐**：付费引擎 key 建议写入 harness 凭据中心 `~/.dsh/.credentials.yaml`（如 `DEEPSEEK_API_KEY: sk-...`，与官方 LLM provider 一致，一处管理所有 key）。插件读取优先级：启动 dsh 时的环境变量 > 凭据中心 > 设置页，设置页填的 key 仅作为遗留兼容。已由环境变量提供的 key 在配置卡片里显示为只读（例如「已从环境变量 EXA_API_KEY 读取」），要改就去改环境变量。
-- **Test engine**：直测当前引擎可用性（不走回退链，付费引擎无 key 会明确报错）
-- **Use Bing default**：把当前搜索引擎切回稳定的免费 Bing；`Discard` 只撤销尚未保存的编辑
-- **Platform search**：勾选启用 GitHub / V2EX / Bilibili / Reddit / HN / Stack Overflow / 维基百科 / npm 平台搜索（`platform_search` 工具按此过滤）
+- **测试引擎**：直测当前第一个尝试的引擎（不走回退链，付费引擎无 key 会明确报错）；「撤销」只撤销尚未保存的编辑
+- **平台搜索**：勾选启用 GitHub / V2EX / Bilibili / Reddit / HN / Stack Overflow / 维基百科 / npm 平台搜索（`platform_search` 工具按此过滤）
+- **网络代理**：见下方「代理」
 - **EN / 中文**：切换界面语言（默认中文）
 
 <table align="center" style="border: none; border-collapse: collapse;">
   <tr style="border: none;">
     <td align="center" width="50%" style="border: none; padding: 6px;">
-      <a href="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-free.png">
-        <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-free.png" alt="免费引擎设置" width="100%" />
+      <a href="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-model-search.png">
+        <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-model-search.png" alt="全局列表 + 模型内置联网搜索" width="100%" />
       </a>
       <br>
-      <sub>▲ <b>免费引擎</b>（显示绿色 FREE 徽章与官网链接）</sub>
+      <sub>▲ <b>全局列表模式</b> + 开启 OpenAI 模型内置联网搜索</sub>
     </td>
     <td align="center" width="50%" style="border: none; padding: 6px;">
-      <a href="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-apikey.png">
-        <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-apikey.png" alt="付费引擎设置" width="100%" />
+      <a href="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-dark.png">
+        <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-dark.png" alt="深色主题下的 API 密钥与代理设置" width="100%" />
       </a>
       <br>
-      <sub>▲ <b>付费/API Key 引擎</b>（显示橙色 API KEY 徽章与获取链接）</sub>
+      <sub>▲ <b>深色主题</b>：API 密钥（标注来源）与网络代理</sub>
     </td>
   </tr>
 </table>
 
 ### 聊天框切换引擎（/free-search-engine）
 
-不用进设置页也能切换引擎：在聊天框输入 `/free-search-engine`，**弹出引擎选择窗口**（和 `/model` 选模型一样的交互），点选即切换，当前引擎会标记出来。等效于设置页切换 + 保存，且界面语言跟随设置页（中文/英文）。
+不用进设置页也能切换引擎：在聊天框输入 `/free-search-engine`，**弹出引擎选择窗口**（和 `/model` 选模型一样的交互），点选即切换，当前引擎会标记出来。「首选 + 回退」模式下设为首选引擎（也可选「智能路由」），「全局列表」模式下把它移到列表最前；两种模式都会顺带启用该引擎。
 
-命令只改首选引擎配置，搜索仍走 `web_search` + 统一回退链：即使首选引擎挂了也会自动换其他引擎，永不直接失败。系统提示词同步刷新。
+命令只改优先级配置，搜索仍走 `web_search` + 统一回退链：即使首选引擎挂了也会自动换其他引擎，永不直接失败。系统提示词同步刷新。
 
 ### 配置文件
 
-DSH 0.1.7-rc.1 起，配置跟随 profile 的插件条目保存：设置页与 `/free-search-engine` 都会写入当前 profile 的 `cordis.patch.yml` 中 `web-search-free`（`@copylee/dsh-free-search`）条目的 `config`。旧版 `~/.dsh/settings.yaml` 的 `free-search:` 段只会在启动时自动导入一次，随后原文件被重命名为 `settings.yaml.imported`。
+DSH 0.1.7-rc.1 起，配置跟随 profile 的插件条目保存：设置页与 `/free-search-engine` 都会写入当前 profile 的 `cordis.patch.yml` 中 `web-search-free`（`@copylee/dsh-free-search`）条目的 `config`。
+
+旧版 `~/.dsh/settings.yaml` 的 `free-search:` 段**不会被 DSH 核心自动导入**（核心只为 `ui-developer-tools` / `ui-onboarding` / `shell` 三个段做了映射），原文件会被改名为 `settings.yaml.imported`，该段的值只留在那里。插件启动时会检测 `settings.yaml.imported`（或仍存在的 `settings.yaml`）里的 `free-search:` 段，把能识别的字段**一次性补种**进当前 profile 的条目 `config`（只写一次，启动日志里能看到 `free-search: migrated N field(s)…`）。
 
 ```yaml
 # profiles/<profile>/cordis.patch.yml 中该条目的 config：
-provider: bing              # ddg / ddg-lite / bing / searxng / anysearch / exa / tavily / keenable / firecrawl / parallel / perplexity / serpbase / deepseek-official
+provider: bing              # 首选引擎：任一引擎 id，或 auto（智能路由）
+priorityMode: preferred     # preferred（首选 + 回退）/ list（全局列表）
+engineOrder:                # 回退顺序 / 全局列表（缺失的引擎会自动补在末尾）
+  - exa
+  - tavily
+  - bing
+disabledEngines:            # 跳过的引擎（默认 [openai]）
+  - openai
+openaiModel: gpt-6-luna     # OpenAI 模型内置搜索用的模型
+openaiBaseUrl: https://api.openai.com/v1   # 可换成兼容 Responses API 的网关
 lang: zh                    # 设置页界面语言（zh / en）
 bingMarket: zh-CN           # Bing 市场
 region: cn-zh               # DuckDuckGo 区域（可选）
@@ -172,6 +204,7 @@ parallelApiKey: ...         # 或通过设置页填写
 perplexityApiKey: ...
 serpbaseApiKey: ...         # 或通过设置页填写
 deepseekApiKey: ...
+# youcomApiKey / baiduApiKey / kimiApiKey / aliyunApiKey / doubaoApiKey / openaiApiKey 同理（推荐放凭据中心）
 proxyMode: system          # 代理：off（直连）/ system（自动检测系统代理）/ custom（用 proxyUrl）
 proxyUrl: http://127.0.0.1:7897   # proxyMode 为 custom 时使用
 proxyEngines:               # 走代理的引擎
@@ -213,11 +246,13 @@ Search engine test:
 | Parallel | `source_policy.after_date`（有 key 时精确）；无 key 走 MCP，无日期参数，改为把窗口写进 objective 作为新鲜度提示（软过滤） | ✅ 精确 / ⚠️ 软过滤 | 自定义天数转成 ISO 日期（N 天前），绝对日期原样传入 |
 | SearXNG | `time_range` | ⚠️ 近似 | 同上 |
 | DuckDuckGo / Lite | `df` | ⚠️ 近似 | 同上 |
-| Bing / AnySearch | — | ❌ 忽略 | 无对应参数 |
+| 百度千帆 | `search_filter.range.page_time` | ✅ 精确 | 换算成起止日期 |
+| 豆包搜索 | `TimeRange` | ⚠️ 近似 / ✅ 精确 | 相对值映射到 OneDay/OneWeek/OneMonth/OneYear，绝对日期用 `起始..今天` 区间 |
+| Bing / AnySearch / OpenAI 等 | — | ❌ 忽略 | 无对应参数 |
 
 **"最近似档位"映射规则**：`≤2 天 → day`，`≤14 天 → week`，`≤90 天 → month`，否则 `year`。例如 `3d` 在 Tavily 上按 `day` 处理，`2mo` 按 `month` 处理。
 
-**引擎链优先级**：当带 timeRange 搜索时，支持时间过滤的引擎（tavily / exa / keenable / firecrawl / parallel / searxng / ddg / ddg-lite）会排到引擎链前面，确保过滤真正生效——即使首选引擎是 bing（不支持过滤），也会先尝试支持过滤的引擎。
+**引擎链优先级**：当带 timeRange 搜索时，支持时间过滤的引擎（tavily / exa / keenable / firecrawl / parallel / searxng / ddg / ddg-lite / baidu / doubao）会排到引擎链前面，确保过滤真正生效——即使首选引擎是 bing（不支持过滤），也会先尝试支持过滤的引擎。
 
 示例对话：*"帮我搜最近 3 天关于 DSH 的新闻"* → agent 调用 `advanced_search`，`timeRange: "3d"`。
 
@@ -246,9 +281,17 @@ Search engine test:
 
 全部走公开 API，零外部依赖、无需任何 key，开箱即用。
 
+### 多源交叉搜索（multi_search）
+
+需要交叉验证或多个视角时（"多找几个来源确认一下"），agent 可以调用 `multi_search`：并发查询多个引擎（默认取智能路由的前 3 个已启用引擎，也可以指定 `engines`），按 URL 规范化去重合并，每条结果标注 `seen in: bing, baidu`，被越多引擎命中的排越前。会消耗更多引擎额度，按需使用。
+
+### 接管默认搜索
+
+DSH 的 base bundle 出厂就把 `web.searchProvider` 设为官方的 `deepseek-official`（需要 DeepSeek 余额）。插件启动时：未设置 searchProvider，或仍是出厂默认的 `deepseek-official` → 自动接管为本插件；已被显式指向其他 provider → 不抢占，只在日志里警告并给出切换用的 YAML。
+
 ## 代理（国内用户）
 
-DuckDuckGo 等引擎在国内通常要走代理，而 Node.js 的 `fetch` 默认不走系统代理。现在不用再给 dsh 进程设环境变量，直接在插件配置卡片的 **搜索引擎代理** 里设置：
+DuckDuckGo、OpenAI 等在国内通常要走代理，而 Node.js 的 `fetch` 默认不走系统代理。现在不用再给 dsh 进程设环境变量，直接在插件配置卡片的 **网络代理** 里设置：
 
 - **系统代理（自动检测）**：依次读取 `HTTPS_PROXY` / `HTTP_PROXY` / `ALL_PROXY` 环境变量、Windows「Internet 选项」里的系统代理、macOS 网络设置里的 HTTP(S) 代理。检测结果会显示在下拉框下方。
 - **自定义代理地址**：手动填写，如 `http://127.0.0.1:7897`（可省略 `http://`）。
@@ -270,8 +313,8 @@ DuckDuckGo 等引擎在国内通常要走代理，而 Node.js 的 `fetch` 默认
 
 ## 工作原理
 
-- `lib/index.js`：host 端。实现 `WebSearchProvider`（`id` / `available()` / `search()`），统一引擎路由 + 自动回退（付费引擎优先，免费兜底）；解析 `timeRange`（固定档/相对值/绝对日期）并透传给各引擎；在 `web-search-free` 条目上声明可编辑配置（`.volatile()`）并自带设置页；提供 `/api/dsh-free-search-settings` 读写桥 + `raw-search` 调试接口；注册 `free_search_test`、`platform_search`、`advanced_search` 工具；动态注入引擎清单到系统提示词（设置变更时自动刷新）。
-- `lib/client.js`：浏览器端。React 配置卡片（引擎选择 + key 输入 + 连通测试 + 中英切换），挂载到官方「网页搜索」页下方（`plugins.detail.section`），官方页不在时退回插件详情页（`plugins.bundle.config`）；注册 `/free-search-engine` 弹出式切换命令（`commandUi` popupSelect，与 `/model` 同机制）。
+- `lib/index.js`：host 端。实现 `WebSearchProvider`（`id` / `available()` / `search()`），统一引擎路由 + 自动回退（顺序与启用状态来自设置页，支持智能路由）；解析 `timeRange`（固定档/相对值/绝对日期）并透传给各引擎；在 `web-search-free` 条目上声明可编辑配置（`.volatile()`）并自带设置页；提供 `/api/dsh-free-search-settings` 读写桥 + `raw-search` 调试接口；注册 `free_search_test`、`platform_search`、`advanced_search`、`multi_search` 工具；动态注入引擎清单到系统提示词（设置变更时自动刷新）。
+- `lib/client.js`：浏览器端。React 配置卡片（优先级列表 + 模型搜索 + key 输入 + 连通测试 + 中英切换，样式沿用 DSH 设置页的设计变量），挂载到官方「网页搜索」页下方（`plugins.detail.section`），官方页不在时退回插件详情页（`plugins.bundle.config`）；注册 `/free-search-engine` 弹出式切换命令（`commandUi` popupSelect，与 `/model` 同机制）。
 - `cordis.patch.yml`：插件 loader 配置。
 
 ## 许可证
