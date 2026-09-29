@@ -14,7 +14,9 @@ const ctx = { logger: { info() {}, warn(x) { console.log("WARN", x); }, error() 
 process.env.DSH_HOME = "/nonexistent";
 m.apply(ctx, cfg);
 for (const n of ["image_search", "page_images", "save_images"]) assert.ok(tools.has(n), n);
-assert.ok(prompt.includes("image_search: image libraries, tried in this order: openverse > wikimedia > pexels"));
+assert.ok(prompt.includes("falls back to the user's order (openverse > wikimedia > pexels"), prompt);
+assert.ok(prompt.includes("  - pexels: high-quality photos"));
+assert.match(tools.get("image_search").description, /Choose the source\(s\)/);
 // toggle off / on live
 cfg.pageImagesEnabled = false; onUpdated("web-search-free");
 assert.ok(!tools.has("page_images") && tools.has("image_search"));

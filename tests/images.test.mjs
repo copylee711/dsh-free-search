@@ -48,8 +48,32 @@ r = await I.searchImages({ query: "minimal living room", orientation: "landscape
   url.includes("openverse") ? json({ result_count: 0, results: [] }) : json({ total_results: 1, photos: [{ id: 1, width: 4000, height: 3000, url: "https://pexels.com/p/1", photographer: "Ann", src: { large2x: "https://images.pexels.com/1.jpg", medium: "https://images.pexels.com/1m.jpg" }, alt: "room" }] })));
 assert.equal(r.provider, "pexels"); assert.match(r.note, /openverse returned 0.*unsplash skipped/);
 assert.ok(calls.some((u) => u.includes("aspect_ratio=wide")));
-// explicit keyed provider without key -> clear error
-await assert.rejects(I.searchImages({ query: "x", provider: "unsplash" }, { order: [] }, deps(() => json({}))), /UNSPLASH_ACCESS_KEY/);
+// strict keyed provider without key -> clear error
+await assert.rejects(I.searchImages({ query: "x", provider: "unsplash", strict: true }, { order: [] }, deps(() => json({}))), /UNSPLASH_ACCESS_KEY/);
+// agent picks a keyed source without key -> falls back through the user's order
+{
+  const ov = () => json({ result_count: 1, results: [{ url: "https://o.org/f.jpg", thumbnail: "https://o.org/ft.jpg", width: 800, height: 600, title: "field" }] });
+  r = await I.searchImages({ query: "grassland", providers: ["unsplash"] }, { order: ["openverse"], disabled: [] }, deps(ov));
+  assert.equal(r.provider, "openverse"); assert.match(r.note, /unsplash skipped.*fell back to openverse/);
+  // several sources at once: searched together, merged in turns, English keywords go to the stock libraries only
+  const seenQ = [];
+  r = await I.searchImages({ query: "草原", englishQuery: "grassland", providers: ["pexels", "openverse", "unsplash"], count: 8 }, { order: [], disabled: [] }, deps((url) => {
+    const u = new URL(url); seenQ.push(`${u.hostname}:${u.searchParams.get("query") ?? u.searchParams.get("q")}`);
+    if (url.includes("openverse")) return json({ result_count: 2, results: [1, 2].map((i) => ({ url: `https://o.org/${i}.jpg`, thumbnail: `https://o.org/t${i}.jpg`, width: 800, height: 600, title: `o${i}` })) });
+    return json({ total_results: 2, photos: [1, 2].map((i) => ({ id: i, width: 4000, height: 3000, url: `https://pexels.com/p/${i}`, photographer: "Ann", src: { large2x: `https://images.pexels.com/${i}.jpg`, medium: `https://images.pexels.com/${i}m.jpg` }, alt: `p${i}` })) });
+  }));
+  assert.equal(r.provider, "pexels+openverse");
+  assert.deepEqual(r.images.map((i) => i.provider), ["pexels", "openverse", "pexels", "openverse"]);
+  assert.match(r.note, /unsplash skipped/);
+  assert.ok(seenQ.every((q) => q.endsWith(":grassland")), seenQ.join());
+  // a source the user turned off is not used even when the agent asks for it
+  r = await I.searchImages({ query: "cat", providers: ["pexels"] }, { order: ["openverse"], disabled: ["pexels"] }, deps(ov));
+  assert.equal(r.provider, "openverse"); assert.match(r.note, /pexels is turned off by the user/);
+  // "fixed order" setting ignores the agent's choice
+  r = await I.searchImages({ query: "cat", providers: ["pexels"] }, { order: ["openverse"], disabled: [], agentChoice: false }, deps(ov));
+  assert.equal(r.provider, "openverse"); assert.match(r.note, /own order/);
+  assert.ok(Object.keys(I.IMAGE_PROVIDER_GUIDE).length === I.IMAGE_PROVIDERS.length);
+}
 // disabled provider skipped
 r = await I.searchImages({ query: "cat" }, { order: ["wikimedia", "openverse"], disabled: ["wikimedia"] }, deps(() => json({ result_count: 1, results: [{ url: "https://o.org/c.jpg", thumbnail: "https://o.org/t.jpg", width: 10, height: 10, license: "by", license_version: "4.0" }] })));
 assert.equal(r.provider, "openverse"); assert.equal(r.images[0].license, "CC BY 4.0");
@@ -189,7 +213,7 @@ assert.match(I.renderPagesText({ query: "q", pages: [{ pageUrl: ex.pageUrl, page
   // network failure names the source and suggests the proxy
   const netErr = Object.assign(new TypeError("fetch failed"), { cause: { code: "ETIMEDOUT" } });
   await assert.rejects(
-    I.searchImages({ query: "Doraemon", provider: "openverse" }, { order: ["openverse"] }, { fetchFn: async () => { throw netErr; }, resolveKey: async () => "", runProxied: (_p, fn) => fn() }),
+    I.searchImages({ query: "Doraemon", provider: "openverse", strict: true }, { order: ["openverse"] }, { fetchFn: async () => { throw netErr; }, resolveKey: async () => "", runProxied: (_p, fn) => fn() }),
     /openverse: could not reach api\.openverse\.org \(ETIMEDOUT\).*Proxy/
   );
 }

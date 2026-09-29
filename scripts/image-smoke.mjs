@@ -39,7 +39,7 @@ for (const provider of images.IMAGE_PROVIDERS) {
   total++;
   const started = Date.now();
   try {
-    const r = await images.searchImages({ query, provider, count: 6 }, { order: [] }, { ...deps, signal: AbortSignal.timeout(30000) });
+    const r = await images.searchImages({ query, provider, count: 6, strict: true }, { order: [] }, { ...deps, signal: AbortSignal.timeout(30000) });
     const first = r.images[0];
     if (!first) failed++;
     line(Boolean(first), `image_search ${provider}`, Date.now() - started, `${r.images.length} images${first ? `  ${first.width}x${first.height} ${JSON.stringify(first.title ?? "")} ${first.url}` : ""}${r.note ? `  note: ${r.note}` : ""}`);
@@ -95,7 +95,7 @@ for (const url of pages) {
     const { mkdtempSync } = await import("node:fs");
     const { join } = await import("node:path");
     const { tmpdir } = await import("node:os");
-    const r = await images.searchImages({ query: "Albert Einstein portrait", count: 6, provider: "wikimedia" }, { order: ["wikimedia"] }, deps);
+    const r = await images.searchImages({ query: "Albert Einstein portrait", count: 6, provider: "wikimedia", strict: true }, { order: ["wikimedia"] }, deps);
     images.rememberImages(r.images);
     const ids = r.images.slice(0, 5).map((i) => i.id);
     const out = await images.saveImages(ids, mkdtempSync(join(tmpdir(), "smoke-save-")), { fetchFn: fetch, signal: AbortSignal.timeout(120000) });
@@ -119,7 +119,7 @@ for (const url of pages) {
     total++;
     const started = Date.now();
     try {
-      const r = await images.searchImages({ query: q, count: 6, provider }, { order: [provider] }, deps);
+      const r = await images.searchImages({ query: q, count: 6, provider, strict: true }, { order: [provider] }, deps);
       images.rememberImages(r.images);
       const ids = r.images.slice(0, 3).map((i) => i.id);
       if (ids.length === 0) {
@@ -157,6 +157,7 @@ for (const url of pages) {
   );
   for (const [name, args] of [
     ["image_search", { query: "鲁迅", provider: "bing-images", count: 8 }],
+    ["image_search", { query: "鲁迅", englishQuery: "Lu Xun", providers: ["wikimedia", "openverse", "bing-images"], count: 9 }],
     ["page_images", { query: "鲁迅", count: 12, pages: 3 }],
   ]) {
     total++;
@@ -165,8 +166,9 @@ for (const url of pages) {
       const out = await tools.get(name).execute(args, { signal: AbortSignal.timeout(90000) });
       const first = out.images[0];
       if (!first) failed++;
+      if (out.provider) console.log(`     provider=${out.provider} sources=${[...new Set(out.images.map((i) => i.provider))].join(",")}`);
       const pagesInfo = out.pages ? `  pages: ${out.pages.map((p) => `${new URL(p.pageUrl).hostname}=${p.count}${p.error ? "(" + p.error + ")" : ""}`).join(" ")}` : "";
-      line(Boolean(first), `tool ${name} ${JSON.stringify(args.query)}`, Date.now() - started, `${out.images.length} images${first ? `  ${JSON.stringify(first.title ?? "")} ${first.url}` : ""}${out.note ? `  note: ${out.note}` : ""}${pagesInfo}`);
+      line(Boolean(first), `tool ${name} ${JSON.stringify(args.query)}${args.providers ? " " + args.providers.join("+") : ""}`, Date.now() - started, `${out.images.length} images${first ? `  ${JSON.stringify(first.title ?? "")} ${first.url}` : ""}${out.note ? `  note: ${out.note}` : ""}${pagesInfo}`);
     } catch (error) {
       failed++;
       line(false, `tool ${name}`, Date.now() - started, error instanceof Error ? error.message : String(error));
