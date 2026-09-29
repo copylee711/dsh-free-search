@@ -119,4 +119,22 @@ assert.equal(I.resolveSaveDir("", "/work/proj"), "/work/proj/images");
 assert.equal(I.resolveSaveDir("", undefined), path.join(os.homedir(), "Downloads", "dsh-images"));
 assert.equal(I.resolveSaveDir("", "/w", "鲁迅/照片"), "/w/images/鲁迅 照片");
 assert.match(I.renderPagesText({ query: "q", pages: [{ pageUrl: ex.pageUrl, pageTitle: ex.pageTitle }], images: ex.images }), /\[img_[0-9a-f]{8}\]/);
+
+// --- Bing Images relevance + web-page fallback
+assert.equal(I.imagesLookRelevant("Lu Xun", [{ title: "Jeff Bezos | Biography", url: "https://cdn.britannica.com/Jeff-Bezos.jpg" }, { title: "Amazon HQ", url: "https://x.com/a.jpg" }]), false);
+assert.equal(I.imagesLookRelevant("Lu Xun", [{ title: "Lu Xun in 1930", url: "https://x.com/a.jpg" }, { title: "other", url: "https://x.com/b.jpg" }, { title: "portrait", url: "https://x.com/lu_xun.jpg" }]), true);
+assert.equal(I.imagesLookRelevant("鲁迅照片", [{ title: "鲁迅先生", url: "https://x.com/a.jpg" }, { title: "杂图", url: "https://x.com/b.jpg" }]), true);
+const unrelatedBing = `<a class="iusc" m="{&quot;murl&quot;:&quot;https://cdn.britannica.com/Jeff-Bezos-2017.jpg&quot;,&quot;t&quot;:&quot;Jeff Bezos | Britannica&quot;}"></a><a class="iusc" m="{&quot;murl&quot;:&quot;https://x.com/amazon.jpg&quot;,&quot;t&quot;:&quot;Amazon&quot;}"></a>`;
+let webCalled = 0;
+const fallbackImg = I.makeImage({ url: "https://zh.wikipedia.org/luxun.jpg", title: "鲁迅", provider: "page", pageUrl: "https://zh.wikipedia.org/wiki/鲁迅" });
+r = await I.searchImages({ query: "Lu Xun" }, { order: ["bing-images"] }, {
+  fetchFn: async () => new Response(unrelatedBing, { headers: { "content-type": "text/html" } }),
+  resolveKey: async () => "", runProxied: (p, fn) => fn(),
+  webImages: async (q, n) => { webCalled++; return { images: [{ ...fallbackImg, provider: "bing-images" }], pages: 1 }; },
+});
+assert.equal(webCalled, 1); assert.equal(r.provider, "bing-images"); assert.equal(r.images[0].url, "https://zh.wikipedia.org/luxun.jpg");
+assert.match(r.note, /unrelated results.*extracted from 1 page/);
+// without a fallback the unrelated set is not returned
+r = await I.searchImages({ query: "Lu Xun" }, { order: ["bing-images"] }, { fetchFn: async () => new Response(unrelatedBing), resolveKey: async () => "", runProxied: (p, fn) => fn() });
+assert.equal(r.images.length, 0); assert.match(r.note, /unrelated/);
 console.log("images ok");

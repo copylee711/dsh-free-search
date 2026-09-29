@@ -38,3 +38,34 @@ assert.equal(saved.dir, path.join(ws, "images", "猫"));
 assert.equal(saved.saved.length, 1); assert.ok(fs.existsSync(saved.saved[0].file)); assert.equal(saved.saved[0].width, 800);
 
 console.log("apply images ok");
+
+// --- image_search: Bing Images returns unrelated pictures -> Bing web search -> extract from the pages found
+{
+  const tools2 = new Map();
+  const sctx2 = { ...sctx, tools: { register(t) { tools2.set(t.name, t); return () => tools2.delete(t.name); } }, on() {} };
+  m.apply({ ...ctx, inject: (d, cb) => cb(sctx2) }, { provider: "bing", legacyYamlMigrated: true, imageProviderOrder: ["bing-images"] });
+  const seen = [];
+  globalThis.fetch = async (url) => {
+    const u = String(url);
+    seen.push(u.split("?")[0]);
+    if (u.startsWith("https://www.bing.com/images/")) {
+      return new Response(`<a class="iusc" m="{&quot;murl&quot;:&quot;https://cdn.britannica.com/Jeff-Bezos.jpg&quot;,&quot;t&quot;:&quot;Jeff Bezos&quot;}"></a>`, { headers: { "content-type": "text/html" } });
+    }
+    if (u.startsWith("https://www.bing.com/search")) {
+      // 真实结果页很大；插件把过短的响应当作空页，这里补足长度
+      return new Response(`<html><body>${"<div></div>".repeat(300)}<ol><li class="b_algo"><h2><a href="https://zh.wikipedia.org/wiki/%E9%B2%81%E8%BF%85">鲁迅 - 维基百科</a></h2><p>鲁迅，中国作家</p></li></ol></body></html>`, { headers: { "content-type": "text/html" } });
+    }
+    if (u.startsWith("https://zh.wikipedia.org/w/api.php")) {
+      const params = new URL(u).searchParams;
+      if (params.get("prop") === "pageimages|images|info") return new Response(JSON.stringify({ query: { pages: { "1": { title: "鲁迅", pageimage: "Lu_Xun_1930.jpg", images: [{ title: "File:Lu Xun 1930.jpg" }] } } } }));
+      return new Response(JSON.stringify({ query: { pages: { a: { title: "File:Lu Xun 1930.jpg", imageinfo: [{ url: "https://upload.wikimedia.org/lx.jpg", width: 900, height: 1200, mime: "image/jpeg" }] } } } }));
+    }
+    return new Response("", { status: 404 });
+  };
+  const out2 = await tools2.get("image_search").execute({ query: "鲁迅" }, {});
+  assert.equal(out2.provider, "bing-images");
+  assert.deepEqual(out2.images.map((i) => i.url), ["https://upload.wikimedia.org/lx.jpg"]);
+  assert.match(out2.note, /unrelated results.*extracted from 1 page/);
+  assert.ok(seen.includes("https://www.bing.com/search"), seen.join(" "));
+  console.log("bing images fallback ok");
+}
