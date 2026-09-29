@@ -11,7 +11,7 @@ const pages = process.argv[3]
       "https://zh.wikipedia.org/wiki/%E9%B2%81%E8%BF%85",
       "https://en.wikipedia.org/wiki/Lu_Xun",
       "https://baike.baidu.com/item/%E9%B2%81%E8%BF%85",
-      "https://www.britannica.com/biography/Lu-Xun",
+      "https://www.newworldencyclopedia.org/entry/Lu_Xun",
     ];
 const keys = { pexels: process.env.PEXELS_API_KEY, unsplash: process.env.UNSPLASH_ACCESS_KEY, pixabay: process.env.PIXABAY_API_KEY };
 const deps = { fetchFn: fetch, resolveKey: async (p) => keys[p] ?? "", runProxied: (_p, fn) => fn() };
@@ -44,8 +44,22 @@ for (const provider of images.IMAGE_PROVIDERS) {
     if (!first) failed++;
     line(Boolean(first), `image_search ${provider}`, Date.now() - started, `${r.images.length} images${first ? `  ${first.width}x${first.height} ${JSON.stringify(first.title ?? "")} ${first.url}` : ""}${r.note ? `  note: ${r.note}` : ""}`);
     if (!first && provider === "bing-images") {
-      await diagnose(`https://www.bing.com/images/async?q=${encodeURIComponent(query)}&first=1&count=6&mmasync=1&mkt=zh-CN`);
-      await diagnose(`https://www.bing.com/images/search?q=${encodeURIComponent(query)}&form=HDRSC3&mkt=zh-CN`);
+      // 对比几种请求方式，找出 Bing 在哪种情况下返回图片
+      const home = await fetch("https://www.bing.com/images", { headers: { "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" } });
+      const cookie = (home.headers.getSetCookie?.() ?? []).map((c) => c.split(";")[0]).join("; ");
+      console.log(`     primed cookies: ${cookie.replace(/=[^;]+/g, "=…")}`);
+      const q = encodeURIComponent(query);
+      for (const [label, url, extra] of [
+        ["search zh-CN", `https://www.bing.com/images/search?q=${q}&form=HDRSC3&mkt=zh-CN`, {}],
+        ["search zh-CN +cookie", `https://www.bing.com/images/search?q=${q}&form=HDRSC3&mkt=zh-CN`, { cookie }],
+        ["search en-US +cookie", `https://www.bing.com/images/search?q=${q}&form=HDRSC3&mkt=en-US`, { cookie }],
+        ["search no-mkt +cookie", `https://www.bing.com/images/search?q=${q}&form=HDRSC3`, { cookie }],
+        ["async +cookie", `https://www.bing.com/images/async?q=${q}&first=0&count=35&mmasync=1`, { cookie, referer: "https://www.bing.com/images/search?q=" + q }],
+        ["cn.bing search", `https://cn.bing.com/images/search?q=${q}&form=HDRSC3`, {}],
+      ]) {
+        console.log(`   ${label}`);
+        await diagnose(url, extra);
+      }
     }
   } catch (error) {
     failed++;
