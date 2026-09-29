@@ -122,6 +122,8 @@ dsh plugin --profile web add /path/to/dsh-free-search
 dsh web
 ```
 
+> **升级插件后也要完全退出并重新打开 DSH**（包括托盘图标）。只刷新页面的话，界面是新版、后台还是旧版：新增的设置保存不了，新功能也不可用。遇到这种情况，配置卡片顶部会提示需要重启。
+
 ### 依赖说明
 
 插件对 `@deepseek-ai/dsh-settings` 和 `@deepseek-ai/dsh-tools` 使用 `peerDependencies`，这是刻意的：DSH 运行时必须使用安装树中的唯一实例。请通过 `dsh plugin --profile <profile> add ...` 安装插件，不要把 DSH 核心包复制进 profile 的本地 `node_modules`；重复副本会导致工具调度器失效。

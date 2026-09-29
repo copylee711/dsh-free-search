@@ -122,6 +122,8 @@ Then restart:
 dsh web
 ```
 
+> **After upgrading the plugin, fully quit and reopen DSH as well** (including the tray icon). Reloading the page only updates the UI while the background keeps the old code, so new settings cannot be saved and new features are missing; the config card shows a restart banner when that happens.
+
 ### Dependency Note
 
 This plugin intentionally specifies `@deepseek-ai/dsh-settings` and `@deepseek-ai/dsh-tools` as `peerDependencies`: the DSH runtime must use a single instance from the installation tree. Always install the plugin using `dsh plugin --profile <profile> add ...`. Do **not** copy DSH core packages into a profile-local `node_modules`, as duplicate copies can break the tool scheduler.
