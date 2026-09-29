@@ -69,3 +69,25 @@ console.log("apply images ok");
   assert.ok(seen.includes("https://www.bing.com/search"), seen.join(" "));
   console.log("bing images fallback ok");
 }
+
+// --- the page search for that fallback follows the web search settings (preferred engine, order, disabled)
+{
+  const tools3 = new Map();
+  const sctx3 = { ...sctx, tools: { register(t) { tools3.set(t.name, t); return () => tools3.delete(t.name); } }, on() {} };
+  m.apply({ ...ctx, inject: (d, cb) => cb(sctx3) }, { provider: "ddg-lite", disabledEngines: ["bing"], legacyYamlMigrated: true, imageProviderOrder: ["bing-images"] });
+  const seen = [];
+  globalThis.fetch = async (url) => {
+    const u = String(url);
+    seen.push(u.split("?")[0]);
+    if (u.startsWith("https://www.bing.com/images/")) {
+      return new Response(`<a class="iusc" m="{&quot;murl&quot;:&quot;https://cdn.britannica.com/Jeff-Bezos.jpg&quot;,&quot;t&quot;:&quot;Jeff Bezos&quot;}"></a>`, { headers: { "content-type": "text/html" } });
+    }
+    return new Response("", { status: 404 });
+  };
+  await tools3.get("image_search").execute({ query: "鲁迅" }, {}).catch(() => {});
+  const searches = seen.filter((u) => !u.startsWith("https://www.bing.com/images/"));
+  assert.ok(searches.length > 0, seen.join(" "));
+  assert.ok(searches[0].startsWith("https://lite.duckduckgo.com/"), searches.join(" "));
+  assert.ok(!seen.includes("https://www.bing.com/search"), "disabled Bing web search must not be used");
+  console.log("fallback follows web search settings ok");
+}

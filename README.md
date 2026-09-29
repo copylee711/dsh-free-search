@@ -303,7 +303,7 @@ DSH 的 base bundle 出厂就把 `web.searchProvider` 设为官方的 `deepseek-
 
 | 工具 | 用途 |
 |---|---|
-| `image_search` | 图库搜图。图源按设置页顺序尝试：Wikimedia Commons、Openverse（免 key，带授权信息）→ Pexels、Unsplash、Pixabay（高质量图库，需免费 key）→ Bing 图片（免 key，覆盖面最广，图片版权归原作者；Bing 图片没有可信结果时——例如返回和查询无关的图——会自动改用 Bing 网页搜索找页面，再从页面里提取图片）。也可以让 agent 指定某个图源 |
+| `image_search` | 图库搜图。图源按设置页顺序尝试：Wikimedia Commons、Openverse（免 key，带授权信息）→ Pexels、Unsplash、Pixabay（高质量图库，需免费 key）→ Bing 图片（免 key，覆盖面最广，图片版权归原作者；Bing 图片没有可信结果时——例如返回和查询无关的图——会自动用联网搜索找页面（引擎顺序和网页搜索的设置一致），再从页面里提取图片）。也可以让 agent 指定某个图源 |
 | `page_images` | 从网页提取图片。给页面链接就直接提取；只给关键词就先联网搜索，再从最合适的页面（优先维基百科、百科、官网）提取。维基百科走官方 API，拿原图和授权信息；百度百科去掉缩放参数拿原图；其他网页解析 `og:image`、正文图片、懒加载图片和 `srcset`，自动去掉图标、logo、头像和追踪像素，按尺寸过滤 |
 | `save_images` | 把结果里的图片（用 `img_xxxxxxxx` 编号或链接指定）下载到当前会话工作区的 `images/` 文件夹，文件名是「标题 - 来源网站」，返回本地路径，做 PPT、文档时可以直接插入 |
 
