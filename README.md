@@ -31,6 +31,7 @@ dsh 默认的搜索 provider 依赖 DeepSeek 官方 API key（`DEEPSEEK_API_KEY`
 - **多引擎可选**：DuckDuckGo（html/lite）、Bing、SearXNG（元搜索，支持自定义实例）、AnySearch、Exa、Tavily、Keenable、Firecrawl、Parallel、Perplexity、SerpBase、DeepSeek 官方、You.com、百度千帆、Kimi、阿里云百炼、豆包搜索，以及 **OpenAI 模型内置联网搜索**
 - **可调的搜索优先级** —— 两种模式任选：「首选 + 回退」（选一个首选引擎，失败时按列表回退）或「全局列表」（完全按列表从上到下）；列表可按住拖动排序、逐个开关引擎；首选引擎还可以选「智能路由」（按查询语言自动排序）
 - **模型内置联网搜索（OpenAI）** —— 可选开启：通过 Responses API 的 `web_search` 工具让模型（默认 `gpt-6-luna`）搜索网页并返回带引用的回答；模型名、Base URL（可换兼容网关）可配置；按次计费，默认关闭
+- **搜图与网页取图** —— `image_search` 从图库找图（Wikimedia Commons / Openverse 免 key，Pexels / Unsplash / Pixabay 填 key，Bing 图片可选），`page_images` 把维基百科、百度百科、新闻、官网等页面里的图片提取出来，`save_images` 把选中的图下载到工作区；结果在对话里显示为图片墙，点开看大图、下载。三个工具都能在设置页单独开关
 - **多源交叉搜索（multi_search）** —— 并发查询多个引擎，按 URL 合并去重，每条结果标注出现在哪些引擎里
 - **网页设置页** —— 与 DSH 自身设置页同一套样式（跟随深浅色主题）：优先级、模型搜索、API key（脱敏显示"已配置"及来源）、代理、中英文切换；入口：左侧「插件」页 → 官方 → **网页搜索**（DSH 0.1.7-rc.1+）
 - **弹出式切换命令** —— 聊天框输入 `/free-search-engine`，弹出引擎选择窗口，点选即切换（等效设置页 + 保存）
@@ -289,6 +290,36 @@ Search engine test:
 
 DSH 的 base bundle 出厂就把 `web.searchProvider` 设为官方的 `deepseek-official`（需要 DeepSeek 余额）。插件启动时：未设置 searchProvider，或仍是出厂默认的 `deepseek-official` → 自动接管为本插件；已被显式指向其他 provider → 不抢占，只在日志里警告并给出切换用的 YAML。
 
+## 搜图与网页取图
+
+做 PPT、收集素材时，可以直接让 agent 找图："帮我收集鲁迅的照片做 PPT"、"找几张极简风格客厅的参考图"、"把这篇文章里的图片都拿出来"。
+
+| 工具 | 用途 |
+|---|---|
+| `image_search` | 图库搜图。图源按设置页顺序尝试：Wikimedia Commons、Openverse（免 key，带授权信息）→ Pexels、Unsplash、Pixabay（高质量图库，需免费 key）→ Bing 图片（免 key，覆盖面最广，图片版权归原作者）。也可以让 agent 指定某个图源 |
+| `page_images` | 从网页提取图片。给页面链接就直接提取；只给关键词就先联网搜索，再从最合适的页面（优先维基百科、百科、官网）提取。维基百科走官方 API，拿原图和授权信息；百度百科去掉缩放参数拿原图；其他网页解析 `og:image`、正文图片、懒加载图片和 `srcset`，自动去掉图标、logo、头像和追踪像素，按尺寸过滤 |
+| `save_images` | 把结果里的图片（用 `img_xxxxxxxx` 编号或链接指定）下载到当前会话工作区的 `images/` 文件夹，文件名是「标题 - 来源网站」，返回本地路径，做 PPT、文档时可以直接插入 |
+
+<div align="center">
+  <a href="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/image-wall.png">
+    <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/image-wall.png" alt="对话内图片墙" width="620" />
+  </a>
+  <br>
+  <sub>▲ 对话内图片墙（示意图，图片为占位图）：图库结果和网页取图（按来源页分组），点击看大图，可下载 / 打开原站 / 复制链接 / 复制编号</sub>
+</div>
+
+- **图片墙**：缩略图和大图都经插件自己的接口取回，自动带来源页作为 Referer，所以百度百科这类有防盗链的图片也能显示；按引擎代理的设置同样生效（在「网络代理」里勾选对应图源或「网页取图 / 图片下载」）。
+- **设置页「图片搜索」分区**：三个工具各自开关（关掉的工具会从 agent 的工具列表里移除）；图源顺序可以拖动、逐个开关；网页取图可设最小尺寸（默认 200px）、每页最多张数、是否包含 SVG；保存目录留空就用会话工作区的 `images/`，也可以填绝对路径或相对路径。
+- **API key**：Pexels（<https://www.pexels.com/api/>）、Unsplash（<https://unsplash.com/developers>）、Pixabay（<https://pixabay.com/api/docs/>）都能免费申请，填在「API 密钥」里，或写进凭据中心：`PEXELS_API_KEY`、`UNSPLASH_ACCESS_KEY`、`PIXABAY_API_KEY`。
+- **安全**：插件只访问公网地址（拒绝本机、内网、链路本地地址，重定向每一跳都会检查），只接受图片类型，单张不超过 30 MiB。
+- **版权**：Wikimedia / Openverse / 图库结果会带上作者和授权信息；网页和 Bing 图片的版权归原作者，适合做素材参考，公开发布前请确认授权。
+
+<div align="center">
+  <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-images.png" alt="设置页的图片搜索分区" width="620" />
+  <br>
+  <sub>▲ 设置页的「图片搜索」分区</sub>
+</div>
+
 ## 代理（国内用户）
 
 DuckDuckGo、OpenAI 等在国内通常要走代理，而 Node.js 的 `fetch` 默认不走系统代理。现在不用再给 dsh 进程设环境变量，直接在插件配置卡片的 **网络代理** 里设置：
@@ -313,9 +344,11 @@ DuckDuckGo、OpenAI 等在国内通常要走代理，而 Node.js 的 `fetch` 默
 
 ## 工作原理
 
-- `lib/index.js`：host 端。实现 `WebSearchProvider`（`id` / `available()` / `search()`），统一引擎路由 + 自动回退（顺序与启用状态来自设置页，支持智能路由）；解析 `timeRange`（固定档/相对值/绝对日期）并透传给各引擎；在 `web-search-free` 条目上声明可编辑配置（`.volatile()`）并自带设置页；提供 `/api/dsh-free-search-settings` 读写桥 + `raw-search` 调试接口；注册 `free_search_test`、`platform_search`、`advanced_search`、`multi_search` 工具；动态注入引擎清单到系统提示词（设置变更时自动刷新）。
+- `lib/index.js`：host 端。实现 `WebSearchProvider`（`id` / `available()` / `search()`），统一引擎路由 + 自动回退（顺序与启用状态来自设置页，支持智能路由）；解析 `timeRange`（固定档/相对值/绝对日期）并透传给各引擎；在 `web-search-free` 条目上声明可编辑配置（`.volatile()`）并自带设置页；提供 `/api/dsh-free-search-settings` 读写桥 + `raw-search` 调试接口；注册 `free_search_test`、`platform_search`、`advanced_search`、`multi_search` 工具，以及按开关注册的 `image_search`、`page_images`、`save_images`；动态注入引擎清单到系统提示词（设置变更时自动刷新）。
 - `lib/client.js`：浏览器端。React 配置卡片（优先级列表 + 模型搜索 + key 输入 + 连通测试 + 中英切换，样式沿用 DSH 设置页的设计变量），挂载到官方「网页搜索」页下方（`plugins.detail.section`），官方页不在时退回插件详情页（`plugins.bundle.config`）；注册 `/free-search-engine` 弹出式切换命令（`commandUi` popupSelect，与 `/model` 同机制）。
+- `lib/images.js`：搜图与网页取图的核心逻辑（各图源适配、页面图片提取、图片文件头尺寸探测、公网地址校验、保存到本地），网络请求由 `lib/index.js` 注入（走按引擎代理）。
 - `cordis.patch.yml`：插件 loader 配置。
+- `tests/`：离线测试（`pnpm test`）；`scripts/image-smoke.mjs` + `image-smoke` workflow 用真实网络检查搜图和网页取图。
 
 ## 许可证
 

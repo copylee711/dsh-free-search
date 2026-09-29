@@ -1,7 +1,7 @@
 {
   "name": "@copylee/dsh-free-search",
-  "version": "0.5.1",
-  "description": "Free web search for DeepSeek Harness: 19 engines (Bing/DuckDuckGo/AnySearch/SearXNG/Exa/Tavily/Keenable/Firecrawl/Parallel keyless; Perplexity/SerpBase/DeepSeek/You.com/Baidu/Kimi/Aliyun/Doubao with key) + OpenAI model built-in web search + adjustable priority (preferred+fallback, priority list, smart routing) + multi_search + per-engine proxy + time filtering + platform search + web_fetch, with a DSH-styled settings page.",
+  "version": "0.6.0",
+  "description": "Free web search for DeepSeek Harness: 19 engines (Bing/DuckDuckGo/AnySearch/SearXNG/Exa/Tavily/Keenable/Firecrawl/Parallel keyless; Perplexity/SerpBase/DeepSeek/You.com/Baidu/Kimi/Aliyun/Doubao with key) + OpenAI model built-in web search + adjustable priority (preferred+fallback, priority list, smart routing) + multi_search + image search (Wikimedia/Openverse/Pexels/Unsplash/Pixabay/Bing Images) and image extraction from web pages (Wikipedia/Baidu Baike/any page) with an in-chat image wall and save-to-workspace + per-engine proxy + time filtering + platform search + web_fetch, with a DSH-styled settings page.",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -12,6 +12,7 @@
   "files": [
     "lib/index.js",
     "lib/client.js",
+    "lib/images.js",
     "cordis.patch.yml",
     "README.en.md"
   ],
@@ -35,7 +36,12 @@
     "baidu",
     "kimi",
     "doubao",
-    "multi-search"
+    "multi-search",
+    "image-search",
+    "images",
+    "wikimedia",
+    "pexels",
+    "unsplash"
   ],
   "license": "MIT",
   "publishConfig": {
@@ -57,6 +63,7 @@
     "@deepseek-ai/dsh-client-ui-commands": ">=0.1.7-rc.1",
     "@deepseek-ai/dsh-client-ui-plugin-manager": ">=0.1.7-rc.1",
     "@deepseek-ai/dsh-client-ui-renderer": ">=0.1.7-rc.1",
+    "@deepseek-ai/dsh-client-ui-tool": ">=0.1.7-rc.1",
     "@deepseek-ai/dsh-settings": ">=0.1.7-rc.1",
     "@deepseek-ai/dsh-tools": ">=0.1.7-rc.1",
     "@deepseek-ai/schemastery": "^3.18.4",
@@ -73,6 +80,9 @@
       "optional": true
     },
     "@deepseek-ai/dsh-client-ui-renderer": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-client-ui-tool": {
       "optional": true
     },
     "@deepseek-ai/dsh-settings": {
@@ -100,7 +110,8 @@
       "inject": [
         "@deepseek-ai/dsh-client-ui-commands",
         "@deepseek-ai/dsh-client-ui-plugin-manager",
-        "@deepseek-ai/dsh-client-ui-renderer"
+        "@deepseek-ai/dsh-client-ui-renderer",
+        "@deepseek-ai/dsh-client-ui-tool"
       ],
       "platform": "web"
     },
@@ -115,5 +126,8 @@
         "0.2.0-rc.2": "compatible"
       }
     }
+  },
+  "scripts": {
+    "test": "node --test \"tests/*.test.mjs\""
   }
 }

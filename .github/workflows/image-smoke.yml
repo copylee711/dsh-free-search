@@ -1,0 +1,35 @@
+# 手动触发：对免 key 图源和几个典型页面（维基百科 / 百度百科 / 通用文章）发真实请求，检查搜图和页面取图
+name: Image search smoke test
+
+on:
+  workflow_dispatch:
+    inputs:
+      query:
+        description: "搜图关键词"
+        default: "Lu Xun"
+      pages:
+        description: "只测这些页面（逗号分隔的 URL，留空用默认的鲁迅相关页面）"
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm install -g pnpm@10
+      - run: pnpm install --frozen-lockfile
+      - run: node --test "tests/*.test.mjs"
+      - name: Real requests
+        env:
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
+          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
+          QUERY: ${{ inputs.query }}
+          PAGES: ${{ inputs.pages }}
+        run: node scripts/image-smoke.mjs "$QUERY" "$PAGES"

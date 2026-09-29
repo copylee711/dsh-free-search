@@ -8,6 +8,9 @@
 #   provider: bing            # preferred engine id, or auto (smart routing)
 #   priorityMode: preferred   # preferred (preferred + fallback) | list (priority list)
 # Failed/empty engines fall back to the next engine in the configured order.
+# Also registers the switchable image tools image_search / page_images /
+# save_images (image libraries, pictures extracted from web pages, download to
+# the workspace); their results render as an image wall in the chat.
 # A legacy ~/.dsh/settings.yaml "free-search:" section is migrated into this
 # entry's config once at startup (see README).
 # web.searchProvider must point at this plugin's provider id (ddg); the runtime

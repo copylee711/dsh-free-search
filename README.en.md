@@ -31,6 +31,7 @@ This plugin provides multiple free search engines with automatic fallback, compl
 - **Multi-Engine Support** — DuckDuckGo (HTML / Lite), Bing, AnySearch AI, SearXNG (meta-search with custom instances), Exa, Tavily, Keenable, Firecrawl, Parallel, Perplexity, SerpBase, DeepSeek Official, You.com, Baidu Qianfan, Kimi, Aliyun Bailian and Doubao search — plus the **OpenAI model's built-in web search**
 - **Adjustable search priority** — pick a mode: "Preferred + fallback" (one preferred engine, then the list) or "Priority list" (strictly top to bottom); drag to reorder the list and switch engines on/off one by one; the preferred engine can also be "Auto" (smart routing by query language)
 - **Model built-in web search (OpenAI)** — optional: the model (default `gpt-6-luna`) searches the web through the Responses API `web_search` tool and returns an answer with cited sources; model and Base URL (any compatible gateway) are configurable; billed per search, off by default
+- **Image search and page images** — `image_search` finds pictures in image libraries (Wikimedia Commons / Openverse keyless, Pexels / Unsplash / Pixabay with keys, optional Bing Images), `page_images` pulls the pictures out of Wikipedia, Baidu Baike, news and official pages, and `save_images` downloads chosen ones into the workspace; results show up as an image wall in the chat with a lightbox and downloads. Each of the three tools can be switched on or off on the settings page
 - **Cross-source search (multi_search)** — queries several engines concurrently, merges results by URL and marks which engines each result was seen in
 - **Web Settings UI** — styled like DSH's own settings pages (follows the light/dark theme): priority, model search, API keys (masked as "configured", with where each key comes from), proxy, Chinese/English toggle; open it from Plugins → Official → **Web search** (DSH 0.1.7-rc.1+)
 - **Popup Switch Command** — Type `/free-search-engine` in the chat: a picker opens with all engines; click one to switch (equivalent to the settings page + save)
@@ -289,6 +290,36 @@ When the agent needs cross-checking or several perspectives ("find a few more so
 
 DSH's base bundle ships `web.searchProvider: deepseek-official` (which needs DeepSeek balance). At startup the plugin takes over when searchProvider is unset or still that shipped default; if another provider was chosen explicitly, it does not override it and only logs a warning with the YAML to switch.
 
+## Image search and page images
+
+For slides and research material you can ask the agent for pictures directly: "collect photos of Lu Xun for my slides", "find a few minimalist living-room references", "get all the pictures from this article".
+
+| Tool | What it does |
+|---|---|
+| `image_search` | Searches image libraries in the order set on the settings page: Wikimedia Commons and Openverse (keyless, with license info) → Pexels, Unsplash, Pixabay (high-quality stock, free API keys) → Bing Images (keyless, widest coverage, copyright of the original owners). The agent can also force one source |
+| `page_images` | Extracts the pictures from web pages. Pass page URLs, or just a query to search first and extract from the best pages (Wikipedia, encyclopedias and official sites first). Wikipedia is read through its API (original files plus licenses); Baidu Baike resize parameters are stripped to get originals; other pages are parsed for `og:image`, article images, lazy-loaded images and `srcset`, with icons, logos, avatars and tracking pixels dropped and small images filtered out |
+| `save_images` | Downloads chosen results (by their `img_xxxxxxxx` ids or URLs) into the `images/` folder of the session workspace, named "title - source site", and returns the local paths for inserting into slides or documents |
+
+<div align="center">
+  <a href="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/image-wall.png">
+    <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/image-wall.png" alt="Image wall in the chat" width="620" />
+  </a>
+  <br>
+  <sub>▲ Image wall in the chat (mock-up with placeholder images): library results and page images grouped by page; click for the lightbox with download / source / copy link / copy id</sub>
+</div>
+
+- **Image wall**: thumbnails and full images are fetched through the plugin's own endpoint with the source page as Referer, so hotlink-protected pictures (e.g. Baidu Baike) still show; the per-engine proxy applies too (tick the image sources or "page images / downloads" under Network proxy).
+- **"Image search" settings section**: switch each tool on or off (a switched-off tool is removed from the agent's tool list); drag to reorder sources and switch them individually; set the minimum size for page images (default 200px), the maximum per page and whether to include SVG; leave the save folder empty to use the workspace's `images/`, or give an absolute or relative path.
+- **API keys**: Pexels (<https://www.pexels.com/api/>), Unsplash (<https://unsplash.com/developers>) and Pixabay (<https://pixabay.com/api/docs/>) are free; fill them under API keys or in the credential center as `PEXELS_API_KEY`, `UNSPLASH_ACCESS_KEY`, `PIXABAY_API_KEY`.
+- **Safety**: the plugin only fetches public addresses (loopback, private and link-local addresses are refused, and every redirect hop is checked), accepts image content types only, and caps each file at 30 MiB.
+- **Copyright**: Wikimedia / Openverse / stock results carry author and license info; pictures from web pages and Bing Images belong to their owners — fine as reference material, check the license before publishing.
+
+<div align="center">
+  <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-images.png" alt="Image search section of the settings page" width="620" />
+  <br>
+  <sub>▲ The "Image search" section of the settings page</sub>
+</div>
+
 ## Proxy (for Users in Mainland China)
 
 Engines such as DuckDuckGo and OpenAI usually need a proxy in mainland China, and Node.js `fetch` ignores the system proxy by default. There is no need to set environment variables for dsh anymore: set it under **Network proxy** in the plugin's config card:
@@ -313,9 +344,11 @@ Notes:
 
 ## How It Works
 
-- `lib/index.js`: Host side. Implements `WebSearchProvider` (`id` / `available()` / `search()`), unified engine routing + auto-fallback (order and on/off state from the settings page, with smart routing); parses `timeRange` (fixed tiers / relative values / absolute dates) and forwards it to each engine; declares its editable config as volatile fields on the `web-search-free` composition entry and ships its own settings page; provides the `/api/dsh-free-search-settings` read/write bridge + `raw-search` debug endpoint; registers the `free_search_test`, `platform_search`, `advanced_search` and `multi_search` tools; dynamically injects the engine list into system prompts (auto-refreshes on settings change).
+- `lib/index.js`: Host side. Implements `WebSearchProvider` (`id` / `available()` / `search()`), unified engine routing + auto-fallback (order and on/off state from the settings page, with smart routing); parses `timeRange` (fixed tiers / relative values / absolute dates) and forwards it to each engine; declares its editable config as volatile fields on the `web-search-free` composition entry and ships its own settings page; provides the `/api/dsh-free-search-settings` read/write bridge + `raw-search` debug endpoint; registers the `free_search_test`, `platform_search`, `advanced_search` and `multi_search` tools plus the switchable `image_search`, `page_images` and `save_images`; dynamically injects the engine list into system prompts (auto-refreshes on settings change).
 - `lib/client.js`: Browser side. React configuration card (priority list, model search, key inputs, connectivity test and Chinese/English toggle, styled with DSH's design tokens), mounted below the official Web search page (`plugins.detail.section`), falling back to the plugin's detail page (`plugins.bundle.config`) when that page is absent; registers the `/free-search-engine` popup switch command (`commandUi` popupSelect, the same mechanism as `/model`).
+- `lib/images.js`: the image search / page image core (source adapters, page extraction, image-header size probing, public-address checks, saving to disk); network access is injected by `lib/index.js` so the per-engine proxy applies.
 - `cordis.patch.yml`: Plugin loader configuration.
+- `tests/`: offline tests (`pnpm test`); `scripts/image-smoke.mjs` plus the `image-smoke` workflow check image search and page images against the real network.
 
 ## License
 
