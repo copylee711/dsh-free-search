@@ -87,6 +87,27 @@ for (const url of pages) {
     await diagnose(url);
   }
 }
+// save_images 连续保存 Wikimedia 原图：验证可识别 UA + 限流重试 + 缩略图回退后不再大量 429
+{
+  total++;
+  const started = Date.now();
+  try {
+    const { mkdtempSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const { tmpdir } = await import("node:os");
+    const r = await images.searchImages({ query: "Albert Einstein portrait", count: 6, provider: "wikimedia" }, { order: ["wikimedia"] }, deps);
+    images.rememberImages(r.images);
+    const ids = r.images.slice(0, 5).map((i) => i.id);
+    const out = await images.saveImages(ids, mkdtempSync(join(tmpdir(), "smoke-save-")), { fetchFn: fetch, signal: AbortSignal.timeout(120000) });
+    const ok = ids.length >= 3 && out.failed.length === 0;
+    if (!ok) failed++;
+    line(ok, "save_images wikimedia originals", Date.now() - started, `${out.saved.length}/${ids.length} saved${out.failed.length ? `  failed: ${out.failed.map((f) => f.error).join("; ")}` : ""}`);
+    for (const s of out.saved) console.log(`     ${s.width}x${s.height} ${s.bytes} bytes ${s.note ?? ""} ${s.file}`);
+  } catch (error) {
+    failed++;
+    line(false, "save_images wikimedia originals", Date.now() - started, error instanceof Error ? error.message : String(error));
+  }
+}
 // 端到端：加载插件本身（最小 DSH 替身），真实调用工具 —— 覆盖 Bing 图片回退（Bing 网页搜索 → 页面取图）和 page_images 的 query 模式
 {
   const plugin = await import("../lib/index.js");

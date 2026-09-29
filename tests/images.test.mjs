@@ -120,6 +120,39 @@ assert.equal(I.resolveSaveDir("", undefined), path.join(os.homedir(), "Downloads
 assert.equal(I.resolveSaveDir("", "/w", "鲁迅/照片"), "/w/images/鲁迅 照片");
 assert.match(I.renderPagesText({ query: "q", pages: [{ pageUrl: ex.pageUrl, pageTitle: ex.pageTitle }], images: ex.images }), /\[img_[0-9a-f]{8}\]/);
 
+// --- Wikimedia: identifiable UA, no referer; 429 retry; thumbnail fallback; per-host serial
+{
+  const h1 = I.imageRequestHeaders("https://commons.wikimedia.org/wiki/File:X.jpg", "https://upload.wikimedia.org/a/b/X.jpg");
+  assert.match(h1["user-agent"], /dsh-free-search/); assert.equal(h1.referer, undefined);
+  const h2 = I.imageRequestHeaders("https://site.com/p", "https://cdn.site.com/x.jpg");
+  assert.match(h2["user-agent"], /Mozilla/); assert.equal(h2.referer, "https://site.com/p");
+  assert.equal(I.cleanWikiTitle('Albert Einstein sticking out the tongue label QS:Len,"Albert Einstein sticking out the tongue" label QS:Lde,"Albert Eins'), "Albert Einstein sticking out the tongue");
+  assert.equal(I.cleanWikiTitle("Plain title"), "Plain title");
+  const wdir = fs.mkdtempSync(path.join(os.tmpdir(), "wimgs-"));
+  const mk = (n, w) => I.makeImage({ url: `https://upload.wikimedia.org/wikipedia/commons/a/ab/E${n}.jpg`, thumbUrl: `https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/E${n}.jpg/480px-E${n}.jpg`, width: w, height: w, title: `Portrait of Albert Einstein and Others (1879-1955), Physicist - Restoration ${n}`, sourceUrl: `https://commons.wikimedia.org/wiki/File:E${n}.jpg`, provider: "wikimedia" });
+  const a = mk(1, 5000), b = mk(2, 5000), c = mk(3, 5000);
+  I.rememberImages([a, b, c]);
+  let inflight = 0, maxInflight = 0;
+  const hits = new Map();
+  const fetchFn = async (url) => {
+    inflight++; maxInflight = Math.max(maxInflight, inflight);
+    await new Promise((r) => setTimeout(r, 5));
+    inflight--;
+    hits.set(url, (hits.get(url) ?? 0) + 1);
+    if (url.endsWith("/E1.jpg") && hits.get(url) === 1) return new Response("slow down", { status: 429 });
+    if (url.endsWith("/E2.jpg")) return new Response("slow down", { status: 429 });
+    return imgResp(png(url.includes("1920px") ? 1920 : 5000, 100), "image/png");
+  };
+  const out = await I.saveImages([a.id, b.id, c.id], wdir, { fetchFn, lookup: publicLookup, retryDelayMs: 1 });
+  assert.equal(out.failed.length, 0, JSON.stringify(out.failed));
+  assert.equal(maxInflight, 1);
+  assert.equal(hits.get(a.url), 2);
+  assert.equal(hits.get(b.url), 3);
+  assert.equal(out.saved[1].width, 1920); assert.match(out.saved[1].note, /downscaled to 1920px.*429/);
+  assert.equal(out.saved[0].note, undefined);
+  for (const s of out.saved) assert.match(path.basename(s.file), / - commons\.wikimedia\.org(-\d+)?\.png$/);
+}
+
 // --- Bing Images relevance + web-page fallback
 assert.equal(I.imagesLookRelevant("Lu Xun", [{ title: "Jeff Bezos | Biography", url: "https://cdn.britannica.com/Jeff-Bezos.jpg" }, { title: "Amazon HQ", url: "https://x.com/a.jpg" }]), false);
 assert.equal(I.imagesLookRelevant("Lu Xun", [{ title: "Lu Xun in 1930", url: "https://x.com/a.jpg" }, { title: "other", url: "https://x.com/b.jpg" }, { title: "portrait", url: "https://x.com/lu_xun.jpg" }]), true);
