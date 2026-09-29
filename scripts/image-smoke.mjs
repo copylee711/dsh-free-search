@@ -108,6 +108,31 @@ for (const url of pages) {
     line(false, "save_images wikimedia originals", Date.now() - started, error instanceof Error ? error.message : String(error));
   }
 }
+// save_images 保存 Bing 图片（来源页 URL 常带未编码中文，曾导致 ByteString 报错）；Pexels 有 key 时验证存成 .jpg
+{
+  const { mkdtempSync } = await import("node:fs");
+  const { join, extname } = await import("node:path");
+  const { tmpdir } = await import("node:os");
+  const cases = [["bing-images", "钱学森", () => true]];
+  if (keys.pexels) cases.push(["pexels", "grassland landscape", (s) => extname(s.file) === ".jpg"]);
+  for (const [provider, q, extOk] of cases) {
+    total++;
+    const started = Date.now();
+    try {
+      const r = await images.searchImages({ query: q, count: 6, provider }, { order: [provider] }, deps);
+      images.rememberImages(r.images);
+      const ids = r.images.slice(0, 3).map((i) => i.id);
+      const out = await images.saveImages(ids, mkdtempSync(join(tmpdir(), "smoke-save-")), { fetchFn: fetch, signal: AbortSignal.timeout(120000) });
+      const ok = out.saved.length >= 2 && !out.failed.some((f) => /ByteString/.test(f.error)) && out.saved.every(extOk);
+      if (!ok) failed++;
+      line(ok, `save_images ${provider}`, Date.now() - started, `${out.saved.length}/${ids.length} saved${out.failed.length ? `  failed: ${out.failed.map((f) => f.error).join("; ")}` : ""}`);
+      for (const s of out.saved) console.log(`     ${s.width}x${s.height} ${s.bytes} bytes ${s.file}`);
+    } catch (error) {
+      failed++;
+      line(false, `save_images ${provider}`, Date.now() - started, error instanceof Error ? error.message : String(error));
+    }
+  }
+}
 // 端到端：加载插件本身（最小 DSH 替身），真实调用工具 —— 覆盖 Bing 图片回退（Bing 网页搜索 → 页面取图）和 page_images 的 query 模式
 {
   const plugin = await import("../lib/index.js");

@@ -213,6 +213,11 @@ proxyUrl: http://127.0.0.1:7897   # used when proxyMode is custom
 proxyEngines:               # engines that use the proxy
   - ddg
   - ddg-lite
+  - openai
+  - perplexity
+  - you
+  - wikimedia
+  - openverse
 ```
 
 ### Asking the Agent to Test All Engines
@@ -328,7 +333,7 @@ Engines such as DuckDuckGo and OpenAI usually need a proxy in mainland China, an
 
 - **System proxy (auto-detect)**: reads the `HTTPS_PROXY` / `HTTP_PROXY` / `ALL_PROXY` environment variables, then the Windows "Internet Options" system proxy, then the macOS HTTP(S) proxy. The detected address is shown under the dropdown.
 - **Custom proxy address**: enter it yourself, e.g. `http://127.0.0.1:7897` (`http://` may be omitted).
-- **Engines that use the proxy**: only the checked engines go through the proxy; the rest connect directly (DuckDuckGo HTML / Lite are checked by default).
+- **Engines that use the proxy**: only the checked engines go through the proxy; the rest connect directly (checked by default: sources that are usually unreachable directly from mainland China — DuckDuckGo HTML / Lite, OpenAI, Perplexity, You.com, Wikimedia Commons and Openverse; this only takes effect once a proxy is turned on).
 
 Notes:
 

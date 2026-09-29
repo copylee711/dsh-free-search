@@ -213,6 +213,11 @@ proxyUrl: http://127.0.0.1:7897   # proxyMode 为 custom 时使用
 proxyEngines:               # 走代理的引擎
   - ddg
   - ddg-lite
+  - openai
+  - perplexity
+  - you
+  - wikimedia
+  - openverse
 ```
 
 ### 让 agent 测试所有引擎
@@ -328,7 +333,7 @@ DuckDuckGo、OpenAI 等在国内通常要走代理，而 Node.js 的 `fetch` 默
 
 - **系统代理（自动检测）**：依次读取 `HTTPS_PROXY` / `HTTP_PROXY` / `ALL_PROXY` 环境变量、Windows「Internet 选项」里的系统代理、macOS 网络设置里的 HTTP(S) 代理。检测结果会显示在下拉框下方。
 - **自定义代理地址**：手动填写，如 `http://127.0.0.1:7897`（可省略 `http://`）。
-- **走代理的引擎**：只有勾选的引擎走代理，其余直连（默认勾选 DuckDuckGo HTML / Lite）。
+- **走代理的引擎**：只有勾选的引擎走代理，其余直连（默认勾选国内通常直连不通的源：DuckDuckGo HTML / Lite、OpenAI、Perplexity、You.com、Wikimedia Commons、Openverse；打开代理后才生效，可按自己的网络增减）。
 
 说明：
 

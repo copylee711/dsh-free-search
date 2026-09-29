@@ -153,6 +153,47 @@ assert.match(I.renderPagesText({ query: "q", pages: [{ pageUrl: ex.pageUrl, page
   for (const s of out.saved) assert.match(path.basename(s.file), / - commons\.wikimedia\.org(-\d+)?\.png$/);
 }
 
+
+// --- 0.6.4: non-ASCII referer, no AVIF when saving, Pexels fm=jpg, AVIF size, page relevance, zero-width, network errors
+{
+  const h = I.imageRequestHeaders("https://baike.baidu.com/item/钱学森", "https://bkimg.cdn.bcebos.com/pic/x", { forSave: true });
+  assert.equal(h.referer, "https://baike.baidu.com/item/%E9%92%B1%E5%AD%A6%E6%A3%AE");
+  assert.ok(!/avif/.test(h.accept));
+  assert.match(I.imageRequestHeaders("", "https://x.com/a.jpg").accept, /avif/);
+  assert.equal(I.saveableUrl("https://images.pexels.com/photos/1/p.jpeg?auto=compress&cs=tinysrgb&h=650"), "https://images.pexels.com/photos/1/p.jpeg?auto=compress&cs=tinysrgb&h=650&fm=jpg");
+  assert.equal(I.saveableUrl("https://x.com/a.jpg?auto=compress"), "https://x.com/a.jpg?auto=compress");
+  // minimal AVIF header: ftyp avif + ispe 1880x1256
+  const ftyp = Buffer.concat([Buffer.from([0, 0, 0, 20]), Buffer.from("ftypavif"), Buffer.alloc(8)]);
+  const ispe = Buffer.concat([Buffer.from([0, 0, 0, 20]), Buffer.from("ispe"), Buffer.alloc(4), Buffer.from([0, 0, 0x07, 0x58, 0, 0, 0x04, 0xe8])]);
+  assert.deepEqual(I.imageSize(Buffer.concat([ftyp, ispe])), { width: 1880, height: 1256, type: "avif" });
+  const picked = I.pickPagesForImages([
+    { title: "钱（汉语汉字）_百度百科", url: "https://baike.baidu.com/item/钱/34224" },
+    { title: "钱学森 - 维基百科", url: "https://zh.wikipedia.org/wiki/钱学森" },
+    { title: "钱学森生平", url: "https://news.example.com/a" },
+  ], 3, "钱学森 维基百科");
+  assert.deepEqual(picked.map((p) => new URL(p.url).hostname), ["zh.wikipedia.org", "news.example.com"]);
+  // nothing relevant → keep the old site-score behaviour
+  assert.equal(I.pickPagesForImages([{ title: "a", url: "https://baike.baidu.com/item/x" }], 3, "钱学森").length, 1);
+  const zw = I.makeImage({ url: "https://x.com/a.png", title: "\u200b錢學森的肖像", provider: "page" });
+  assert.equal(zw.title, "錢學森的肖像");
+  assert.equal(I.safeFileName("\u200bA\ufeffB"), "AB");
+  // Bing result with a raw-Chinese page URL saves fine
+  const bingImg = I.makeImage({ url: "https://bkimg.cdn.bcebos.com/pic/abc", title: "钱学森", pageUrl: "https://baike.baidu.com/item/钱学森", provider: "bing-images" });
+  I.rememberImages([bingImg]);
+  const sdir = fs.mkdtempSync(path.join(os.tmpdir(), "zimgs-"));
+  const got = await I.saveImages([bingImg.id], sdir, { lookup: publicLookup, fetchFn: async (url, init) => {
+    for (const v of Object.values(init.headers)) assert.match(v, /^[\x20-\x7e]*$/);
+    return imgResp(png(800, 600), "image/png");
+  } });
+  assert.equal(got.saved.length, 1, JSON.stringify(got.failed));
+  // network failure names the source and suggests the proxy
+  const netErr = Object.assign(new TypeError("fetch failed"), { cause: { code: "ETIMEDOUT" } });
+  await assert.rejects(
+    I.searchImages({ query: "Doraemon", provider: "openverse" }, { order: ["openverse"] }, { fetchFn: async () => { throw netErr; }, resolveKey: async () => "", runProxied: (_p, fn) => fn() }),
+    /openverse: could not reach api\.openverse\.org \(ETIMEDOUT\).*Proxy/
+  );
+}
+
 // --- Bing Images relevance + web-page fallback
 assert.equal(I.imagesLookRelevant("Lu Xun", [{ title: "Jeff Bezos | Biography", url: "https://cdn.britannica.com/Jeff-Bezos.jpg" }, { title: "Amazon HQ", url: "https://x.com/a.jpg" }]), false);
 assert.equal(I.imagesLookRelevant("Lu Xun", [{ title: "Lu Xun in 1930", url: "https://x.com/a.jpg" }, { title: "other", url: "https://x.com/b.jpg" }, { title: "portrait", url: "https://x.com/lu_xun.jpg" }]), true);
