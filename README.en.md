@@ -29,7 +29,7 @@ This plugin provides multiple free search engines with automatic fallback, compl
 
 - **Zero Cost** — Multiple free engines with no API key or registration required
 - **Multi-Engine Support** — DuckDuckGo (HTML / Lite), Bing, AnySearch AI, SearXNG (meta-search with custom instances), Exa, Tavily, Keenable, Firecrawl, Parallel, Perplexity, SerpBase, DeepSeek Official, You.com, Baidu Qianfan, Kimi, Aliyun Bailian and Doubao search — plus the **OpenAI model's built-in web search**
-- **Adjustable search priority** — pick a mode: "Preferred + fallback" (one preferred engine, then the list) or "Priority list" (strictly top to bottom); reorder the list and switch engines on/off one by one; the preferred engine can also be "Auto" (smart routing by query language)
+- **Adjustable search priority** — pick a mode: "Preferred + fallback" (one preferred engine, then the list) or "Priority list" (strictly top to bottom); drag to reorder the list and switch engines on/off one by one; the preferred engine can also be "Auto" (smart routing by query language)
 - **Model built-in web search (OpenAI)** — optional: the model (default `gpt-6-luna`) searches the web through the Responses API `web_search` tool and returns an answer with cited sources; model and Base URL (any compatible gateway) are configurable; billed per search, off by default
 - **Cross-source search (multi_search)** — queries several engines concurrently, merges results by URL and marks which engines each result was seen in
 - **Web Settings UI** — styled like DSH's own settings pages (follows the light/dark theme): priority, model search, API keys (masked as "configured", with where each key comes from), proxy, Chinese/English toggle; open it from Plugins → Official → **Web search** (DSH 0.1.7-rc.1+)
@@ -76,7 +76,7 @@ If this plugin has been helpful, a ⭐ on [GitHub](https://github.com/copylee711
 The preferred engine can also be `auto` (smart routing): Chinese/Japanese/Korean queries try Bing / Baidu / Aliyun / AnySearch first, other languages Bing / Exa / Tavily, then the fallback order.
 
 - **Default engine is `bing`** (free and most stable), ready to use out of the box after installation.
-- **Auto-failover**: any engine failure (rate-limited free engine, or missing/invalid paid key, network error) automatically tries the next engine in the order set on the settings page (default: Exa → Tavily → Keenable → Firecrawl → Parallel → the other API KEY engines → Bing → AnySearch → DuckDuckGo → SearXNG) — with a note attached to the results naming the engine that actually served them (e.g. `Note: perplexity unavailable or failed, using exa.`). Search never fails outright because of engine issues.
+- **Auto-failover**: any engine failure (rate-limited free engine, or missing/invalid paid key, network error) automatically tries the next engine in the order set on the settings page (default: free engines first — Bing → Exa → AnySearch → Tavily → Keenable → Firecrawl → Parallel → DuckDuckGo → SearXNG — then the engines that need a key, skipped while their key is not set) — with a note attached to the results naming the engine that actually served them (e.g. `Note: perplexity unavailable or failed, using exa.`). Search never fails outright because of engine issues.
 - **Official Links in Settings**: Free engines display "Visit Website →", while paid engines display "Get API Key →" (opens in a new tab):
   - Exa: <https://dashboard.exa.ai/api-keys>
   - Tavily: <https://app.tavily.com/home>
@@ -138,7 +138,7 @@ The config page provides:
 
 - **Search engines**:
   - **Priority mode**: "Preferred + fallback" — pick a preferred engine (or "Auto" smart routing) and fall back through the list below; "Priority list" — no preferred engine, the list is tried strictly top to bottom
-  - **Fallback order / Search order**: reorder with ↑ ↓, switch engines on/off on the right; "Reset to default" restores the defaults
+  - **Fallback order / Search order**: press and drag a row (or use ↑ ↓) to reorder, switch engines on/off on the right; engines missing their key are marked; "Reset to default" restores the defaults
 - **Model built-in web search**: turn OpenAI's built-in search on (off by default) and set the model (default `gpt-6-luna`), Base URL (any gateway compatible with the Responses API) and `OPENAI_API_KEY`; once on it appears in the order above and can go anywhere
 - **Search results**: safe search, Bing market, result cache TTL
 - **API keys**: Enter keys for Exa / Tavily / Keenable / Firecrawl / Parallel / Perplexity / DeepSeek (password fields; displayed as "configured" once saved; Exa / Tavily / Keenable / Firecrawl / Parallel work without a key too).

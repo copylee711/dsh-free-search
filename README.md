@@ -29,7 +29,7 @@ dsh 默认的搜索 provider 依赖 DeepSeek 官方 API key（`DEEPSEEK_API_KEY`
 
 - **零成本** —— 多个免费引擎，无需 key、无需注册
 - **多引擎可选**：DuckDuckGo（html/lite）、Bing、SearXNG（元搜索，支持自定义实例）、AnySearch、Exa、Tavily、Keenable、Firecrawl、Parallel、Perplexity、SerpBase、DeepSeek 官方、You.com、百度千帆、Kimi、阿里云百炼、豆包搜索，以及 **OpenAI 模型内置联网搜索**
-- **可调的搜索优先级** —— 两种模式任选：「首选 + 回退」（选一个首选引擎，失败时按列表回退）或「全局列表」（完全按列表从上到下）；列表可上下调整顺序、逐个开关引擎；首选引擎还可以选「智能路由」（按查询语言自动排序）
+- **可调的搜索优先级** —— 两种模式任选：「首选 + 回退」（选一个首选引擎，失败时按列表回退）或「全局列表」（完全按列表从上到下）；列表可按住拖动排序、逐个开关引擎；首选引擎还可以选「智能路由」（按查询语言自动排序）
 - **模型内置联网搜索（OpenAI）** —— 可选开启：通过 Responses API 的 `web_search` 工具让模型（默认 `gpt-6-luna`）搜索网页并返回带引用的回答；模型名、Base URL（可换兼容网关）可配置；按次计费，默认关闭
 - **多源交叉搜索（multi_search）** —— 并发查询多个引擎，按 URL 合并去重，每条结果标注出现在哪些引擎里
 - **网页设置页** —— 与 DSH 自身设置页同一套样式（跟随深浅色主题）：优先级、模型搜索、API key（脱敏显示"已配置"及来源）、代理、中英文切换；入口：左侧「插件」页 → 官方 → **网页搜索**（DSH 0.1.7-rc.1+）
@@ -76,7 +76,7 @@ dsh 默认的搜索 provider 依赖 DeepSeek 官方 API key（`DEEPSEEK_API_KEY`
 首选引擎还可以设为 `auto`（智能路由）：中日韩文查询先试 Bing / 百度 / 阿里云 / AnySearch，其他语言先试 Bing / Exa / Tavily，之后按回退顺序继续。
 
 - **默认引擎为 `bing`**（免费且最稳定），安装后开箱即用。
-- **自动回退**：任何引擎失败（免费限流/反爬，付费缺 key/无效/网络错误）都会自动按设置页的顺序尝试下一个引擎，并在结果中附带回退提示——搜索不会因引擎问题直接失败。默认顺序：Exa → Tavily → Keenable → Firecrawl → Parallel → 其余 API KEY 引擎 → Bing → AnySearch → DuckDuckGo → SearXNG，可在设置页调整。
+- **自动回退**：任何引擎失败（免费限流/反爬，付费缺 key/无效/网络错误）都会自动按设置页的顺序尝试下一个引擎，并在结果中附带回退提示——搜索不会因引擎问题直接失败。默认顺序：免费引擎在前（Bing → Exa → AnySearch → Tavily → Keenable → Firecrawl → Parallel → DuckDuckGo → SearXNG），需要 key 的引擎在后（没配 key 的自动跳过），可在设置页拖动调整。
 - **设置页有官网链接**：免费引擎显示"访问官网 →"，付费引擎显示"获取 API Key →"（新标签页打开）：
   - Exa：<https://dashboard.exa.ai/api-keys>
   - Tavily：<https://app.tavily.com/home>
@@ -138,7 +138,7 @@ dsh web
 
 - **搜索引擎**：
   - **优先级模式**：「首选 + 回退」——选一个首选引擎（或「智能路由」），失败时按下面的列表回退；「全局列表」——不设首选，完全按列表从上到下尝试
-  - **回退顺序 / 搜索顺序**：↑ ↓ 调整顺序，右侧开关启用/跳过某个引擎；「恢复默认」一键还原
+  - **回退顺序 / 搜索顺序**：按住一行拖动（或用 ↑ ↓）调整顺序，右侧开关启用/跳过某个引擎，没配 key 的引擎会标出「未配置 key」；「恢复默认」一键还原
 - **模型内置联网搜索**：开关 OpenAI 内置搜索（默认关闭），设置模型（默认 `gpt-6-luna`）、Base URL（可换成兼容 Responses API 的网关）和 `OPENAI_API_KEY`；开启后它出现在上面的顺序里，可以放到任意位置
 - **搜索结果**：安全搜索过滤、Bing 市场、结果缓存时长
 - **API 密钥**：为各引擎填写 key（密码框，保存后只显示"已配置"，并标出 key 来自环境变量 / 凭据中心；Exa / Tavily / Keenable / Firecrawl / Parallel 不填也可免 key 使用）
