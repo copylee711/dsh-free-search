@@ -1,6 +1,6 @@
 {
   "name": "@copylee/dsh-free-search",
-  "version": "0.4.46",
+  "version": "0.4.47",
   "description": "Free web search for DeepSeek Harness: 13 engines (Bing/DuckDuckGo/AnySearch/SearXNG/Exa/Tavily/Keenable/Firecrawl/Parallel keyless; Perplexity/SerpBase/DeepSeek with key) + optional AnySearch key for higher quota + per-engine proxy + time filtering + platform search + web_fetch, with web settings UI.",
   "type": "module",
   "main": "lib/index.js",
@@ -49,11 +49,11 @@
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "^4.0.1",
-    "@deepseek-ai/dsh-client-ui-commands": "^0.1.7-rc.1",
-    "@deepseek-ai/dsh-client-ui-plugin-manager": "^0.1.7-rc.1",
-    "@deepseek-ai/dsh-client-ui-renderer": "^0.1.7-rc.1",
-    "@deepseek-ai/dsh-settings": "^0.1.7-rc.1",
-    "@deepseek-ai/dsh-tools": "^0.1.7-rc.1",
+    "@deepseek-ai/dsh-client-ui-commands": ">=0.1.7-rc.1",
+    "@deepseek-ai/dsh-client-ui-plugin-manager": ">=0.1.7-rc.1",
+    "@deepseek-ai/dsh-client-ui-renderer": ">=0.1.7-rc.1",
+    "@deepseek-ai/dsh-settings": ">=0.1.7-rc.1",
+    "@deepseek-ai/dsh-tools": ">=0.1.7-rc.1",
     "@deepseek-ai/schemastery": "^3.18.4",
     "react": "^18.2.0"
   },
@@ -105,7 +105,9 @@
     "compatibility": {
       "dshReleases": {
         "0.1.7-rc.1": "compatible",
-        "0.1.7-rc.2": "compatible"
+        "0.1.7-rc.2": "compatible",
+        "0.2.0-rc.1": "compatible",
+        "0.2.0-rc.2": "compatible"
       }
     }
   }
