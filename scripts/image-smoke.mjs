@@ -87,5 +87,40 @@ for (const url of pages) {
     await diagnose(url);
   }
 }
+// 端到端：加载插件本身（最小 DSH 替身），真实调用工具 —— 覆盖 Bing 图片回退（Bing 网页搜索 → 页面取图）和 page_images 的 query 模式
+{
+  const plugin = await import("../lib/index.js");
+  const tools = new Map();
+  const sctx = {
+    effect(fn) { fn(); }, on() {}, get: () => undefined,
+    settings: { configure() { return () => {}; }, describe() { return []; }, async mutate() {} },
+    tools: { register(t) { tools.set(t.name, t); return () => tools.delete(t.name); } },
+    webServer: { register() { return () => {}; } },
+    systemPrompt: { section() { return () => {}; } },
+  };
+  process.env.DSH_HOME = "/nonexistent";
+  plugin.apply(
+    { logger: { info() {}, warn() {}, error() {} }, inject: (_d, cb) => cb(sctx), get: () => undefined, web: { searchProviderId: "ddg", registerSearchProvider() {} }, fiber: {} },
+    { provider: "bing", legacyYamlMigrated: true, bingMarket: "zh-CN" }
+  );
+  for (const [name, args] of [
+    ["image_search", { query: "鲁迅", provider: "bing-images", count: 8 }],
+    ["page_images", { query: "鲁迅", count: 12, pages: 3 }],
+  ]) {
+    total++;
+    const started = Date.now();
+    try {
+      const out = await tools.get(name).execute(args, { signal: AbortSignal.timeout(90000) });
+      const first = out.images[0];
+      if (!first) failed++;
+      const pagesInfo = out.pages ? `  pages: ${out.pages.map((p) => `${new URL(p.pageUrl).hostname}=${p.count}${p.error ? "(" + p.error + ")" : ""}`).join(" ")}` : "";
+      line(Boolean(first), `tool ${name} ${JSON.stringify(args.query)}`, Date.now() - started, `${out.images.length} images${first ? `  ${JSON.stringify(first.title ?? "")} ${first.url}` : ""}${out.note ? `  note: ${out.note}` : ""}${pagesInfo}`);
+    } catch (error) {
+      failed++;
+      line(false, `tool ${name}`, Date.now() - started, error instanceof Error ? error.message : String(error));
+    }
+  }
+}
+
 console.log(`\n${total - failed}/${total} checks returned images for "${query}"`);
 process.exitCode = failed > 0 ? 1 : 0;
