@@ -137,4 +137,11 @@ assert.match(r.note, /unrelated results.*extracted from 1 page/);
 // without a fallback the unrelated set is not returned
 r = await I.searchImages({ query: "Lu Xun" }, { order: ["bing-images"] }, { fetchFn: async () => new Response(unrelatedBing), resolveKey: async () => "", runProxied: (p, fn) => fn() });
 assert.equal(r.images.length, 0); assert.match(r.note, /unrelated/);
+// Baike page blocked at the network level -> lemma card API fallback
+const bkDeps = { lookup: publicLookup, fetchFn: async (url) => {
+  if (String(url).includes("/api/openapi/BaikeLemmaCardApi")) return json({ title: "鲁迅", url: "https://baike.baidu.com/item/鲁迅/1", image: "https://bkimg.cdn.bcebos.com/pic/card123?x-bce-process=image/resize" });
+  throw new TypeError("fetch failed");
+} };
+const bkOut = await I.extractPageImages("https://baike.baidu.com/item/%E9%B2%81%E8%BF%85", { minSize: 200 }, bkDeps);
+assert.equal(bkOut.via, "baike-api"); assert.equal(bkOut.images[0].url, "https://bkimg.cdn.bcebos.com/pic/card123");
 console.log("images ok");
