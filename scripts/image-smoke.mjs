@@ -122,6 +122,12 @@ for (const url of pages) {
       const r = await images.searchImages({ query: q, count: 6, provider }, { order: [provider] }, deps);
       images.rememberImages(r.images);
       const ids = r.images.slice(0, 3).map((i) => i.id);
+      if (ids.length === 0) {
+        // 搜索本身没结果（Bing 对运行器 IP 时好时坏，上面的 image_search 行已记录），这里不重复算失败
+        total--;
+        console.log(`SKIP save_images ${provider}`.padEnd(54) + "(search returned no images)");
+        continue;
+      }
       const out = await images.saveImages(ids, mkdtempSync(join(tmpdir(), "smoke-save-")), { fetchFn: fetch, signal: AbortSignal.timeout(120000) });
       const ok = out.saved.length >= 2 && !out.failed.some((f) => /ByteString/.test(f.error)) && out.saved.every(extOk);
       if (!ok) failed++;
