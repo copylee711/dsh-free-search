@@ -327,6 +327,24 @@ DSH 的 base bundle 出厂就把 `web.searchProvider` 设为官方的 `deepseek-
   <sub>▲ 设置页的「图片搜索」分区</sub>
 </div>
 
+## 搭配 dsh-better-display：图文并茂 + 引用角标
+
+搜索结果和图片墙只显示在工具调用面板里，调用结束后面板通常会折叠，最终回答只剩纯文字。配合姊妹插件 [**dsh-better-display**](https://github.com/copylee711/dsh-better-display) 可以解决这个问题：
+
+- **引用角标**：本插件的 `multi_search` / `advanced_search` / `platform_search` 结果带 `[1] [2] …` 编号和直链，模型据此把引用写成 `[1](url)`，dsh-better-display 会把它渲染成 GPT 式上标角标，悬停显示来源站点和标题，点击跳转原网页；回答末尾自动汇总「来源 · N」面板。
+- **正文配图**：`image_search` / `page_images` 的结果会提示模型把合适的图片以 `![说明](图片地址 "来源 · 许可")` 嵌入回答，dsh-better-display 把它们渲染为带说明的图片、同一行多图自动成图集，点击看大图。
+- 分工：本插件负责**找**（搜索、搜图、网页取图），dsh-better-display 负责**展示**（角标、来源面板、配图）。两者独立，单独安装都能用。
+
+```sh
+dsh plugin --profile web add @copylee/dsh-free-search
+dsh plugin --profile web add @copylee/dsh-better-display
+dsh --profile web
+```
+
+然后试试：「介绍一下埃菲尔铁塔，配几张图，并标注信息来源」。
+
+> dsh-better-display 是 [dsh-better-markdown](https://github.com/zerob13/dsh-better-markdown) 的超集（同样基于 markstream-react，保留代码高亮 / Mermaid / KaTeX），安装后可以移除 dsh-better-markdown。
+
 ## 代理（国内用户）
 
 DuckDuckGo、OpenAI 等在国内通常要走代理，而 Node.js 的 `fetch` 默认不走系统代理。现在不用再给 dsh 进程设环境变量，直接在插件配置卡片的 **网络代理** 里设置：

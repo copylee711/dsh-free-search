@@ -327,6 +327,24 @@ For slides and research material you can ask the agent for pictures directly: "c
   <sub>▲ The "Image search" section of the settings page</sub>
 </div>
 
+## With dsh-better-display: illustrated answers + citation chips
+
+Search results and the image wall appear only inside the tool-call panel, and DSH usually collapses that panel once the call finishes, leaving the final answer as plain text. The companion plugin [**dsh-better-display**](https://github.com/copylee711/dsh-better-display) fixes that:
+
+- **Citation chips**: `multi_search` / `advanced_search` / `platform_search` results come numbered `[1] [2] …` with direct links, so the model can cite them as `[1](url)`. dsh-better-display renders these as ChatGPT-style superscript chips: hovering shows the site and title, and clicking opens the page. A "Sources · N" panel is added at the end of the reply.
+- **Inline pictures**: `image_search` / `page_images` results tell the model to embed fitting pictures as `![caption](image URL "source · license")`. dsh-better-display renders them as captioned figures (several on one line become a gallery) with a click-to-zoom lightbox.
+- Division of labour: this plugin **finds** (search, image search, page images) and dsh-better-display **shows** (chips, sources panel, pictures). Each plugin works on its own.
+
+```sh
+dsh plugin --profile web add @copylee/dsh-free-search
+dsh plugin --profile web add @copylee/dsh-better-display
+dsh --profile web
+```
+
+Then try: "Tell me about the Eiffel Tower with a few pictures, and cite your sources".
+
+> dsh-better-display is a superset of [dsh-better-markdown](https://github.com/zerob13/dsh-better-markdown) (same markstream-react pipeline with code highlighting, Mermaid and KaTeX), so you can remove dsh-better-markdown after installing it.
+
 ## Proxy (for Users in Mainland China)
 
 Engines such as DuckDuckGo and OpenAI usually need a proxy in mainland China, and Node.js `fetch` ignores the system proxy by default. There is no need to set environment variables for dsh anymore: set it under **Network proxy** in the plugin's config card:

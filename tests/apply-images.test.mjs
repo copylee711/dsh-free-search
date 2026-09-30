@@ -30,6 +30,8 @@ const out = await tool.execute({ query: "cat" }, { signal: undefined });
 assert.equal(out.provider, "openverse"); assert.equal(out.images.length, 1);
 const text = tool.output.render({ query: "cat" }, out)[0].text;
 assert.match(text, /untrusted-web-content[\s\S]*\[img_[0-9a-f]{8}\] Cat — 800×600/);
+// the embed hint sits outside the untrusted boundary so the model can act on it
+assert.match(text, /<\/untrusted-web-content>\nTo show a picture in your reply[^\n]*!\[caption\]\(image URL "credit"\)/);
 assert.deepEqual(tool.output.presentationMeta({}, out), out);
 // save_images into the session workspace
 const ws = fs.mkdtempSync(path.join(os.tmpdir(), "ws-"));
