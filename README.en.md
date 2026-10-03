@@ -12,7 +12,7 @@
     <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-overview-en.png" alt="Settings page: search engines and priority" width="820" />
   </a>
   <br>
-  <sub>▲ Settings page (same styling as DSH's own settings, follows the light/dark theme)</sub>
+  <sub>Settings page (same styling as DSH's own settings, follows the light/dark theme)</sub>
 </div>
 
 ## Why You Need It
@@ -47,8 +47,6 @@ This plugin provides multiple free search engines with automatic fallback, compl
 - **Webpage Fetching (`web_fetch`)** — Allows the agent to read full webpage contents (official `dsh-web-fetch-http` provider, pure JS, zero extra dependencies)
 - **Platform Search (`platform_search`)** — Search GitHub / V2EX / Bilibili / Reddit / Hacker News / Stack Overflow / Wikipedia / npm (public APIs, zero extra dependencies)
 - **Clean Integration** — Implements the official `WebSearchProvider` seam interface, coexisting seamlessly with official plugins
-
-If this plugin has been helpful, a ⭐ on [GitHub](https://github.com/copylee711/dsh-free-search) would mean a lot — it's the biggest motivation for the developer to keep maintaining it. Thank you!
 
 ## Supported Engines
 
@@ -141,6 +139,7 @@ The config page provides:
 
 - **Search engines**:
   - **Priority mode**: "Preferred + fallback" — pick a preferred engine (or "Auto" smart routing) and fall back through the list below; "Priority list" — no preferred engine, the list is tried strictly top to bottom
+  - **Accent colour**: the bottom of the card offers terracotta, blue or black for switches, checkboxes, the Save button and links; the choice is shared with the other copylee plugins
   - **Fallback order / Search order**: press and drag a row (or use ↑ ↓) to reorder, switch engines on/off on the right; engines missing their key are marked; "Reset to default" restores the defaults
 - **Model built-in web search**: turn OpenAI's built-in search on (off by default) and set the model (default `gpt-6-luna`), Base URL (any gateway compatible with the Responses API) and `OPENAI_API_KEY`; once on it appears in the order above and can go anywhere
 - **Search results**: safe search, Bing market, result cache TTL
@@ -158,14 +157,14 @@ The config page provides:
         <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-model-search.png" alt="Priority list + model built-in web search" width="100%" />
       </a>
       <br>
-      <sub>▲ <b>Priority list mode</b> with OpenAI built-in web search on</sub>
+      <sub><b>Priority list mode</b> with OpenAI built-in web search on</sub>
     </td>
     <td align="center" width="50%" style="border: none; padding: 6px;">
       <a href="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-dark.png">
         <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-dark.png" alt="API keys and proxy in the dark theme" width="100%" />
       </a>
       <br>
-      <sub>▲ <b>Dark theme</b>: API keys (with their source) and network proxy</sub>
+      <sub><b>Dark theme</b>: API keys (with their source) and network proxy</sub>
     </td>
   </tr>
 </table>
@@ -247,16 +246,16 @@ Ask the agent for *"news from the last week"*, *"releases this month"*, *"update
 
 | Engine | Parameter | Precise? | Notes |
 |---|---|---|---|
-| Exa | `startPublishedDate` | ✅ precise | custom days become an ISO date (N days ago); absolute dates pass through |
-| Keenable | `published_after` | ✅ precise | relative values (`12h/3d/2mo/1y`) and absolute dates pass through |
-| Tavily | `time_range` | ⚠️ approximate | only fixed tiers; custom days map to the nearest tier |
-| Firecrawl | `tbs` | ⚠️ approximate | fixed tiers map to `qdr:d/w/m/y`; absolute dates use `cdr:1,cd_min:M/D/YYYY` (precise) |
-| Parallel | `source_policy.after_date` with a key (precise); without a key the MCP path has no date parameter, so the window is written into the objective as a freshness hint (soft filter) | ✅ precise / ⚠️ soft | custom days become an ISO date (N days ago); absolute dates pass through |
-| SearXNG | `time_range` | ⚠️ approximate | same as above |
-| DuckDuckGo / Lite | `df` | ⚠️ approximate | same as above |
-| Baidu Qianfan | `search_filter.range.page_time` | ✅ precise | converted to a start/end date |
-| Doubao search | `TimeRange` | ⚠️ approximate / ✅ precise | relative values map to OneDay/OneWeek/OneMonth/OneYear; absolute dates use a `start..today` range |
-| Bing / AnySearch / OpenAI etc. | — | ❌ ignored | no corresponding parameter |
+| Exa | `startPublishedDate` | precise | custom days become an ISO date (N days ago); absolute dates pass through |
+| Keenable | `published_after` | precise | relative values (`12h/3d/2mo/1y`) and absolute dates pass through |
+| Tavily | `time_range` | approximate | only fixed tiers; custom days map to the nearest tier |
+| Firecrawl | `tbs` | approximate | fixed tiers map to `qdr:d/w/m/y`; absolute dates use `cdr:1,cd_min:M/D/YYYY` (precise) |
+| Parallel | `source_policy.after_date` with a key (precise); without a key the MCP path has no date parameter, so the window is written into the objective as a freshness hint (soft filter) | precise / soft | custom days become an ISO date (N days ago); absolute dates pass through |
+| SearXNG | `time_range` | approximate | same as above |
+| DuckDuckGo / Lite | `df` | approximate | same as above |
+| Baidu Qianfan | `search_filter.range.page_time` | precise | converted to a start/end date |
+| Doubao search | `TimeRange` | approximate / precise | relative values map to OneDay/OneWeek/OneMonth/OneYear; absolute dates use a `start..today` range |
+| Bing / AnySearch / OpenAI etc. | — | ignored | no corresponding parameter |
 
 **Nearest-tier mapping rule**: `≤2 days → day`, `≤14 days → week`, `≤90 days → month`, otherwise `year`. For example, `3d` becomes `day` on Tavily, and `2mo` becomes `month`.
 
@@ -270,7 +269,7 @@ After searching, the agent can **read full webpage content** (e.g., *"Open the f
 
 - Automatically follows redirects and decodes HTML to plain text.
 - Supports timeout and response size limits.
-- ⚠️ Note: `web_fetch` does not have SSRF protection; the agent could theoretically access internal network addresses. Use as needed.
+- Note: `web_fetch` does not have SSRF protection; the agent could theoretically access internal network addresses. Use as needed.
 
 ### Platform Search (`platform_search`)
 
@@ -312,7 +311,7 @@ For slides and research material you can ask the agent for pictures directly: "c
     <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/image-wall.png" alt="Image wall in the chat" width="620" />
   </a>
   <br>
-  <sub>▲ Image wall in the chat (mock-up with placeholder images): library results and page images grouped by page; click for the lightbox with download / source / copy link / copy id</sub>
+  <sub>Image wall in the chat (mock-up with placeholder images): library results and page images grouped by page; click for the lightbox with download / source / copy link / copy id</sub>
 </div>
 
 - **Image wall**: thumbnails and full images are fetched through the plugin's own endpoint with the source page as Referer, so hotlink-protected pictures (e.g. Baidu Baike) still show; the per-engine proxy applies too (tick the image sources or "page images / downloads" under Network proxy).
@@ -324,7 +323,7 @@ For slides and research material you can ask the agent for pictures directly: "c
 <div align="center">
   <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-images.png" alt="Image search section of the settings page" width="620" />
   <br>
-  <sub>▲ The "Image search" section of the settings page</sub>
+  <sub>The "Image search" section of the settings page</sub>
 </div>
 
 ## With dsh-better-display: illustrated answers + citation chips

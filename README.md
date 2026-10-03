@@ -12,7 +12,7 @@
     <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-overview.png" alt="设置页：搜索引擎与优先级" width="820" />
   </a>
   <br>
-  <sub>▲ 设置页（与 DSH 设置页同一套样式，跟随深浅色主题）</sub>
+  <sub>设置页（与 DSH 设置页同一套样式，跟随深浅色主题）</sub>
 </div>
 
 ## 为什么需要它
@@ -47,8 +47,6 @@ dsh 默认的搜索 provider 依赖 DeepSeek 官方 API key（`DEEPSEEK_API_KEY`
 - **网页抓取（web_fetch）** —— 让 agent 抓取网页内容（官方 `dsh-web-fetch-http` provider，纯 JS，零额外依赖）
 - **平台搜索（platform_search）** —— 搜 GitHub / V2EX / B站 / Reddit / Hacker News / Stack Overflow / 维基百科 / npm（公开 API，零依赖）
 - **干净集成** —— 实现官方 `WebSearchProvider` seam 接口，与官方插件共存
-
-如果这个插件帮到了你，欢迎给仓库点个 ⭐（[GitHub](https://github.com/copylee711/dsh-free-search)）——星标是开发者继续维护的最大动力，感谢支持！
 
 ## 引擎列表
 
@@ -141,6 +139,7 @@ dsh web
 
 - **搜索引擎**：
   - **优先级模式**：「首选 + 回退」——选一个首选引擎（或「智能路由」），失败时按下面的列表回退；「全局列表」——不设首选，完全按列表从上到下尝试
+  - **强调色**：卡片底部可选陶土橙 / 蓝色 / 黑色，决定开关、复选框、保存按钮和链接的颜色；这个选择与 copylee 的其他插件共用
   - **回退顺序 / 搜索顺序**：按住一行拖动（或用 ↑ ↓）调整顺序，右侧开关启用/跳过某个引擎，没配 key 的引擎会标出「未配置 key」；「恢复默认」一键还原
 - **模型内置联网搜索**：开关 OpenAI 内置搜索（默认关闭），设置模型（默认 `gpt-6-luna`）、Base URL（可换成兼容 Responses API 的网关）和 `OPENAI_API_KEY`；开启后它出现在上面的顺序里，可以放到任意位置
 - **搜索结果**：安全搜索过滤、Bing 市场、结果缓存时长
@@ -158,14 +157,14 @@ dsh web
         <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-model-search.png" alt="全局列表 + 模型内置联网搜索" width="100%" />
       </a>
       <br>
-      <sub>▲ <b>全局列表模式</b> + 开启 OpenAI 模型内置联网搜索</sub>
+      <sub><b>全局列表模式</b> + 开启 OpenAI 模型内置联网搜索</sub>
     </td>
     <td align="center" width="50%" style="border: none; padding: 6px;">
       <a href="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-dark.png">
         <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-dark.png" alt="深色主题下的 API 密钥与代理设置" width="100%" />
       </a>
       <br>
-      <sub>▲ <b>深色主题</b>：API 密钥（标注来源）与网络代理</sub>
+      <sub><b>深色主题</b>：API 密钥（标注来源）与网络代理</sub>
     </td>
   </tr>
 </table>
@@ -247,16 +246,16 @@ Search engine test:
 
 | 引擎 | 参数 | 是否精确 | 说明 |
 |---|---|---|---|
-| Exa | `startPublishedDate` | ✅ 精确 | 自定义天数转成 ISO 日期（N 天前），绝对日期原样传入 |
-| Keenable | `published_after` | ✅ 精确 | 相对值原样传（`12h/3d/2mo/1y`），绝对日期原样传 |
-| Tavily | `time_range` | ⚠️ 近似 | 只认固定档，自定义天数自动映射到最近似档位 |
-| Firecrawl | `tbs` | ⚠️ 近似 | 固定档映射到 `qdr:d/w/m/y`；绝对日期用 `cdr:1,cd_min:M/D/YYYY`（精确） |
-| Parallel | `source_policy.after_date`（有 key 时精确）；无 key 走 MCP，无日期参数，改为把窗口写进 objective 作为新鲜度提示（软过滤） | ✅ 精确 / ⚠️ 软过滤 | 自定义天数转成 ISO 日期（N 天前），绝对日期原样传入 |
-| SearXNG | `time_range` | ⚠️ 近似 | 同上 |
-| DuckDuckGo / Lite | `df` | ⚠️ 近似 | 同上 |
-| 百度千帆 | `search_filter.range.page_time` | ✅ 精确 | 换算成起止日期 |
-| 豆包搜索 | `TimeRange` | ⚠️ 近似 / ✅ 精确 | 相对值映射到 OneDay/OneWeek/OneMonth/OneYear，绝对日期用 `起始..今天` 区间 |
-| Bing / AnySearch / OpenAI 等 | — | ❌ 忽略 | 无对应参数 |
+| Exa | `startPublishedDate` | 精确 | 自定义天数转成 ISO 日期（N 天前），绝对日期原样传入 |
+| Keenable | `published_after` | 精确 | 相对值原样传（`12h/3d/2mo/1y`），绝对日期原样传 |
+| Tavily | `time_range` | 近似 | 只认固定档，自定义天数自动映射到最近似档位 |
+| Firecrawl | `tbs` | 近似 | 固定档映射到 `qdr:d/w/m/y`；绝对日期用 `cdr:1,cd_min:M/D/YYYY`（精确） |
+| Parallel | `source_policy.after_date`（有 key 时精确）；无 key 走 MCP，无日期参数，改为把窗口写进 objective 作为新鲜度提示（软过滤） | 精确 / 软过滤 | 自定义天数转成 ISO 日期（N 天前），绝对日期原样传入 |
+| SearXNG | `time_range` | 近似 | 同上 |
+| DuckDuckGo / Lite | `df` | 近似 | 同上 |
+| 百度千帆 | `search_filter.range.page_time` | 精确 | 换算成起止日期 |
+| 豆包搜索 | `TimeRange` | 近似 / 精确 | 相对值映射到 OneDay/OneWeek/OneMonth/OneYear，绝对日期用 `起始..今天` 区间 |
+| Bing / AnySearch / OpenAI 等 | — | 忽略 | 无对应参数 |
 
 **"最近似档位"映射规则**：`≤2 天 → day`，`≤14 天 → week`，`≤90 天 → month`，否则 `year`。例如 `3d` 在 Tavily 上按 `day` 处理，`2mo` 按 `month` 处理。
 
@@ -270,7 +269,7 @@ Search engine test:
 
 - 自动跟随重定向、解码正文（HTML 转文本）
 - 支持超时和大小限制
-- ⚠️ 注意：`web_fetch` 无 SSRF 防护，agent 理论上可访问内网地址——按需使用
+- 注意：`web_fetch` 无 SSRF 防护，agent 理论上可访问内网地址——按需使用
 
 ### 平台搜索（platform_search）
 
@@ -312,7 +311,7 @@ DSH 的 base bundle 出厂就把 `web.searchProvider` 设为官方的 `deepseek-
     <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/image-wall.png" alt="对话内图片墙" width="620" />
   </a>
   <br>
-  <sub>▲ 对话内图片墙（示意图，图片为占位图）：图库结果和网页取图（按来源页分组），点击看大图，可下载 / 打开原站 / 复制链接 / 复制编号</sub>
+  <sub>对话内图片墙（示意图，图片为占位图）：图库结果和网页取图（按来源页分组），点击看大图，可下载 / 打开原站 / 复制链接 / 复制编号</sub>
 </div>
 
 - **图片墙**：缩略图和大图都经插件自己的接口取回，自动带来源页作为 Referer，所以百度百科这类有防盗链的图片也能显示；按引擎代理的设置同样生效（在「网络代理」里勾选对应图源或「网页取图 / 图片下载」）。
@@ -324,7 +323,7 @@ DSH 的 base bundle 出厂就把 `web.searchProvider` 设为官方的 `deepseek-
 <div align="center">
   <img src="https://raw.githubusercontent.com/copylee711/dsh-free-search/master/assets/settings-images.png" alt="设置页的图片搜索分区" width="620" />
   <br>
-  <sub>▲ 设置页的「图片搜索」分区</sub>
+  <sub>设置页的「图片搜索」分区</sub>
 </div>
 
 ## 搭配 dsh-better-display：图文并茂 + 引用角标
