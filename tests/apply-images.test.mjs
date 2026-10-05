@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs"; import os from "node:os"; import path from "node:path";
 import * as m from "../lib/index.js";
 const tools = new Map(); let onUpdated; let prompt = "";
-const cfg = { provider: "bing", legacyYamlMigrated: true, imageProviderOrder: ["openverse", "wikimedia"] };
+const cfg = { provider: "bing", legacyYamlMigrated: true, proxyMode: "off", imageProviderOrder: ["openverse", "wikimedia"] };
 const sctx = {
   effect(fn) { fn(); }, on(ev, h) { if (ev === "settings/document-updated") onUpdated = h; }, get: () => undefined,
   settings: { configure() { return () => {}; }, describe() { return []; }, async mutate() {} },
@@ -47,7 +47,7 @@ console.log("apply images ok");
 {
   const tools2 = new Map();
   const sctx2 = { ...sctx, tools: { register(t) { tools2.set(t.name, t); return () => tools2.delete(t.name); } }, on() {} };
-  m.apply({ ...ctx, inject: (d, cb) => cb(sctx2) }, { provider: "bing", legacyYamlMigrated: true, imageProviderOrder: ["bing-images"] });
+  m.apply({ ...ctx, inject: (d, cb) => cb(sctx2) }, { provider: "bing", legacyYamlMigrated: true, proxyMode: "off", imageProviderOrder: ["bing-images"] });
   const seen = [];
   globalThis.fetch = async (url) => {
     const u = String(url);
@@ -78,7 +78,7 @@ console.log("apply images ok");
 {
   const tools3 = new Map();
   const sctx3 = { ...sctx, tools: { register(t) { tools3.set(t.name, t); return () => tools3.delete(t.name); } }, on() {} };
-  m.apply({ ...ctx, inject: (d, cb) => cb(sctx3) }, { provider: "ddg-lite", disabledEngines: ["bing"], legacyYamlMigrated: true, imageProviderOrder: ["bing-images"] });
+  m.apply({ ...ctx, inject: (d, cb) => cb(sctx3) }, { provider: "ddg-lite", disabledEngines: ["bing"], legacyYamlMigrated: true, proxyMode: "off", imageProviderOrder: ["bing-images"] });
   const seen = [];
   globalThis.fetch = async (url) => {
     const u = String(url);
