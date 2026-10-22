@@ -1,5 +1,6 @@
 # dsh-free-search
 
+[![Awesome DSH Plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com)
 [![npm](https://img.shields.io/npm/v/@copylee/dsh-free-search)](https://www.npmjs.com/package/@copylee/dsh-free-search)
 
 中文 · [English](README.en.md)
