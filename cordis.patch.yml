@@ -13,19 +13,15 @@
 # the workspace); their results render as an image wall in the chat.
 # A legacy ~/.dsh/settings.yaml "free-search:" section is migrated into this
 # entry's config once at startup (see README).
-# web.searchProvider must point at this plugin's provider id (ddg); the runtime
-# also takes over when it is unset or still the shipped default
-# (deepseek-official), and only warns when another provider was chosen explicitly.
+# This bundle does not touch `- id: web`: a patch replaces that row's whole config
+# (dropping the host's own fields) and, with this plugin disabled, would leave
+# searchProvider pointing at an unregistered provider. Instead the runtime takes
+# web.searchProvider over once per process while it is unset or still the factory
+# default (deepseek-search-api since DSH 0.2.2-rc.2, deepseek-official before);
+# picking another provider under Settings -> Web search and fetch is respected.
 - insert:
     - id: web-search-free
       name: "@copylee/dsh-free-search"
       config:
         provider: bing
         bingMarket: zh-CN
-# 自动接管默认搜索：让 harness 的 web_search 直接用本插件的 provider（内部含全部引擎）
-# 注意 patch 语义是"整行替换 config"（DSH 0.1.2+）：必须保留 fetchProvider，否则
-# web-fetch-http 会被另一层重新注册，与 base bundle 的注册造成 duplicate loader entry。
-- id: web
-  config:
-    searchProvider: ddg
-    fetchProvider: http

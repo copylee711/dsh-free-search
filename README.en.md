@@ -34,7 +34,7 @@ This plugin provides multiple free search engines with automatic fallback, compl
 - **Model built-in web search (OpenAI)** — optional: the model (default `gpt-6-luna`) searches the web through the Responses API `web_search` tool and returns an answer with cited sources; model and Base URL (any compatible gateway) are configurable; billed per search, off by default
 - **Image search and page images** — `image_search` finds pictures in image libraries (Wikimedia Commons / Openverse keyless, Pexels / Unsplash / Pixabay with keys, optional Bing Images), `page_images` pulls the pictures out of Wikipedia, Baidu Baike, news and official pages, and `save_images` downloads chosen ones into the workspace; results show up as an image wall in the chat with a lightbox and downloads. Each of the three tools can be switched on or off on the settings page
 - **Cross-source search (multi_search)** — queries several engines concurrently, merges results by URL and marks which engines each result was seen in
-- **Web Settings UI** — styled like DSH's own settings pages (follows the light/dark theme): priority, model search, API keys (masked as "configured", with where each key comes from), proxy, Chinese/English toggle; open it from Plugins → Official → **Web search** (DSH 0.1.7-rc.1+)
+- **Web Settings UI** — styled like DSH's own settings pages (follows the light/dark theme): priority, model search, API keys (masked as "configured", with where each key comes from), proxy, Chinese/English toggle; open it from **Settings → Free Search** or the plugin's detail page
 - **Popup Switch Command** — Type `/free-search-engine` in the chat: a picker opens with all engines; click one to switch (equivalent to the settings page + save)
 - **Engine Testing** — `free_search_test` for the agent to check all engines in one call; the settings UI also has a "Test engine" button that tests the selected engine directly (no fallback chain; paid engines without a key report an explicit error)
 - **Unified Engine Fallback** — Any engine failure (paid or free, missing key, 401, rate limit, network error, no results) automatically tries the next engine in the order set on the settings page (paid engines without a key are skipped; exa/tavily/keenable/firecrawl/parallel work keyless) — with a note attached to the results naming the engine that actually served them (e.g. `Note: perplexity unavailable or failed, using exa.`). Search never fails outright.
@@ -131,10 +131,11 @@ This plugin intentionally specifies `@deepseek-ai/dsh-settings` and `@deepseek-a
 
 ### Web Settings (Recommended)
 
-After installation, open the config page (DSH 0.1.7-rc.1+):
+After installation, open the config page:
 
-- Sidebar **Plugins** page → **Official** group → **Web search**: the official DeepSeek search provider's own settings stay on top, and this plugin's config card is right below them
-- If the official DeepSeek search provider is switched off (which removes the Web search page), the card shows on **Installed** → `@copylee/dsh-free-search` instead
+- **Settings → Free Search** (with a search icon in the navigation): the full configuration, split into Engines / Results / Images / API keys / Network & look, with the save bar pinned to the bottom
+- **Plugins → Installed → Free Search** shows the same card on the plugin's detail page
+- From DSH 0.2.2 the **Web search and fetch** page's *Web search provider* menu decides whether this plugin is used: pick **免费搜索 · Free Search** (the plugin selects it on its first start); pick another provider and the plugin steps aside. A status line under that page says whether Free Search is in use
 
 The config page provides:
 
@@ -295,7 +296,9 @@ When the agent needs cross-checking or several perspectives ("find a few more so
 
 ### Taking over the default search
 
-DSH's base bundle ships `web.searchProvider: deepseek-official` (which needs DeepSeek balance). At startup the plugin takes over when searchProvider is unset or still that shipped default; if another provider was chosen explicitly, it does not override it and only logs a warning with the YAML to switch.
+DSH ships `web.searchProvider` pointing at the official provider (`deepseek-search-api` since 0.2.2-rc.2, `deepseek-official` before; both need DeepSeek balance). The plugin takes over once per start when the field is unset or still that factory default (through the settings service since 0.2.1-rc.2). It leaves it alone when DSH's DeepSeek search switch is on or another provider was chosen explicitly, and a later pick on the Web search and fetch page is kept until the next start.
+
+The bundle no longer writes `- id: web` in `cordis.patch.yml`: that row replaced the host's whole web config and, with the plugin disabled, left `searchProvider: ddg` pointing at an unregistered provider so every search failed.
 
 ## Image search and page images
 
@@ -316,7 +319,7 @@ For slides and research material you can ask the agent for pictures directly: "c
 </div>
 
 - **Image wall**: thumbnails and full images are fetched through the plugin's own endpoint with the source page as Referer, so hotlink-protected pictures (e.g. Baidu Baike) still show; the per-engine proxy applies too (tick the image sources or "page images / downloads" under Network proxy).
-- **"Image search" settings**: a switch at the top of the config card flips between "Web search" and "Image search" (the choice is remembered), so the two sets of settings are shown separately; switch each tool on or off (a switched-off tool is removed from the agent's tool list); choose whether the agent picks sources by purpose (default) or they always follow your order; drag to reorder sources and switch them individually; set the minimum size for page images (default 200px), the maximum per page and whether to include SVG; leave the save folder empty to use the workspace's `images/`, or give an absolute or relative path.
+- **"Images" settings**: the config page is split into Engines / Results / Images / API keys / Network & look (the last tab is remembered); image settings are on the Images tab and image-source keys on the API keys tab; switch each tool on or off (a switched-off tool is removed from the agent's tool list); choose whether the agent picks sources by purpose (default) or they always follow your order; drag to reorder sources and switch them individually; set the minimum size for page images (default 200px), the maximum per page and whether to include SVG; leave the save folder empty to use the workspace's `images/`, or give an absolute or relative path.
 - **API keys**: Pexels (<https://www.pexels.com/api/>), Unsplash (<https://unsplash.com/developers>) and Pixabay (<https://pixabay.com/api/docs/>) are free; fill them under API keys or in the credential center as `PEXELS_API_KEY`, `UNSPLASH_ACCESS_KEY`, `PIXABAY_API_KEY`.
 - **Safety**: the plugin only fetches public addresses (loopback, private and link-local addresses are refused, and every redirect hop is checked), accepts image content types only, and caps each file at 30 MiB.
 - **Copyright**: Wikimedia / Openverse / stock results carry author and license info; pictures from web pages and Bing Images belong to their owners — fine as reference material, check the license before publishing.
@@ -370,7 +373,7 @@ Notes:
 ## How It Works
 
 - `lib/index.js`: Host side. Implements `WebSearchProvider` (`id` / `available()` / `search()`), unified engine routing + auto-fallback (order and on/off state from the settings page, with smart routing); parses `timeRange` (fixed tiers / relative values / absolute dates) and forwards it to each engine; declares its editable config as volatile fields on the `web-search-free` composition entry and ships its own settings page; provides the `/api/dsh-free-search-settings` read/write bridge + `raw-search` debug endpoint; registers the `free_search_test`, `platform_search`, `advanced_search` and `multi_search` tools plus the switchable `image_search`, `page_images` and `save_images`; dynamically injects the engine list into system prompts (auto-refreshes on settings change).
-- `lib/client.js`: Browser side. React configuration card (priority list, model search, key inputs, connectivity test and Chinese/English toggle, styled with DSH's design tokens), mounted below the official Web search page (`plugins.detail.section`), falling back to the plugin's detail page (`plugins.bundle.config`) when that page is absent; registers the `/free-search-engine` popup switch command (`commandUi` popupSelect, the same mechanism as `/model`).
+- `lib/client.js`: Browser side. React configuration card (priority list, model search, key inputs, connectivity test and Chinese/English toggle, styled with DSH's design tokens), mounted as the Free Search page of the Settings dialog (`settings.section`) and on the plugin's detail page (`plugins.bundle.config`), with a status line under the official Web search and fetch page (`plugins.detail.section`); registers the `/free-search-engine` popup switch command (`commandUi` popupSelect, the same mechanism as `/model`).
 - `lib/images.js`: the image search / page image core (source adapters, page extraction, image-header size probing, public-address checks, saving to disk); network access is injected by `lib/index.js` so the per-engine proxy applies.
 - `cordis.patch.yml`: Plugin loader configuration.
 - `tests/`: offline tests (`pnpm test`); `scripts/image-smoke.mjs` plus the `image-smoke` workflow check image search and page images against the real network.

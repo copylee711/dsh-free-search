@@ -1,15 +1,19 @@
 {
   "name": "@copylee/dsh-free-search",
-  "version": "0.6.10",
+  "version": "0.7.0",
   "description": "Free web search for DeepSeek Harness: 19 engines (Bing/DuckDuckGo/AnySearch/SearXNG/Exa/Tavily/Keenable/Firecrawl/Parallel keyless; Perplexity/SerpBase/DeepSeek/You.com/Baidu/Kimi/Aliyun/Doubao with key) + OpenAI model built-in web search + adjustable priority (preferred+fallback, priority list, smart routing) + multi_search + image search (Wikimedia/Openverse/Pexels/Unsplash/Pixabay/Bing Images) and image extraction from web pages (Wikipedia/Baidu Baike/any page) with an in-chat image wall and save-to-workspace + per-engine proxy + time filtering + platform search + web_fetch, with a DSH-styled settings page.",
+  "icon": "assets/icon.svg",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
     ".": "./lib/index.js",
     "./client": "./lib/client.js",
+    "./locale/*.json": "./locale/*.json",
     "./package.json": "./package.json"
   },
   "files": [
+    "locale/*.json",
+    "assets/icon.svg",
     "lib/index.js",
     "lib/client.js",
     "lib/images.js",

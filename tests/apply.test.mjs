@@ -13,7 +13,7 @@ const web = { searchProviderId: "deepseek-official", registerSearchProvider(p) {
 const ctx = { logger: { info: (x) => logs.push(x), warn: (x) => logs.push("W " + x), error() {} }, inject: (d, cb) => cb(sctx), get: () => undefined, web, fiber: {} };
 process.env.DSH_HOME = "/nonexistent";
 m.apply(ctx, cfgRaw);
-assert.equal(web.searchProviderId, "ddg"); assert.ok(logs.some((l) => /taking over from the default provider "deepseek-official"/.test(l)));
+assert.equal(web.searchProviderId, "ddg"); assert.ok(logs.some((l) => /"deepseek-official" is the factory default, taking over web\.searchProvider as "ddg"/.test(l)));
 assert.ok(["free_search_test", "platform_search", "advanced_search", "multi_search"].every((n) => tools[n]), Object.keys(tools).join());
 assert.ok(prompt.includes("auto (smart routing") && prompt.includes("- doubao") && prompt.includes("multi_search"));
 // web_search via auto: CJK query -> bing first; mock bing HTML empty so it falls back; baidu/aliyun have no key -> skipped; anysearch mocked
